@@ -16,6 +16,11 @@ export default function sitemap(): MetadataRoute.Sitemap {
       priority: 1,
     },
     {
+      url: `${SITE_URL}/works/ai-construction-estimate`,
+      changeFrequency: 'yearly',
+      priority: 0.8,
+    },
+    {
       url: `${SITE_URL}/works/ai-line-inquiry-assistant`,
       changeFrequency: 'yearly',
       priority: 0.8,

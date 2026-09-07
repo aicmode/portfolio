@@ -21,6 +21,151 @@ const unsplash = (id: string) =>
 export const projects: readonly Project[] = [
   // ── Selected Works ────────────────────────────────────────────────────────
   {
+    id: 'ai-construction-estimate',
+    title: 'AI工事・リフォーム見積管理システム',
+    subtitle: 'AI Construction Estimate',
+    category: '建設・リフォーム × AI × 業務支援',
+    plainSummary:
+      '顧客・工事案件・見積を一元管理し、明細計算・粗利確認・AIチェック・PDF出力まで行える建設・リフォーム業向け見積管理システム。',
+    summary:
+      '工事会社・工務店・リフォーム会社の見積業務を対象に、顧客・工事案件・見積を関連付けて管理します。明細の数量×単価から税抜／税込・原価・粗利益・粗利率を自動計算し、ルールとAIによる見積チェック、日本語の見積書PDF発行までを一つの画面で行えます。',
+    problem:
+      '工事・リフォームの見積は表計算ソフトで個人ごとに作られやすく、金額や原価の計算方法が人によって変わるうえ、案件ごとの採算や進捗を組織で共有しにくい状態になります。',
+    solution:
+      '顧客・工事案件・見積を同じデータベースで結び付け、明細から金額・原価・粗利を自動計算し、見積の内容チェックと見積書PDFの発行までを一つのシステムで完結できるようにしました。',
+    features: [
+      '顧客管理（一覧・検索・詳細・登録・編集・削除）',
+      '工事案件管理（工事種別・施工場所・工期・担当者・ステータス）',
+      '見積の作成・編集と、明細の追加・削除・並べ替え',
+      '数量×単価から小計・値引き・税抜合計・消費税・税込合計を自動計算',
+      '原価合計・粗利益・粗利率の自動計算とリアルタイム表示',
+      '見積番号の自動採番（組織別・年別、データベース側で一意性を保証）',
+      '見積ステータス管理（下書き・確認中・提出済み・受注・失注・期限切れ）',
+      'ダッシュボードでの月次件数・受注見込額・平均粗利率・要注意見積の集計',
+      'ルールエンジンとAIによる見積チェック（粗利率・原価割れ・過大な値引き・重複明細など）',
+      'A4縦・日本語の見積書PDF生成（禁則処理付きの行分割）',
+      'Supabase Authによる認証と、組織・ユーザー単位のデータ分離',
+      'RLSによるテナント分離をデータベース層で担保',
+      '登録不要で閲覧できる読み取り専用の公開デモ（ワンクリックのデモログイン）',
+      'PC・スマートフォンのレスポンシブ対応',
+    ],
+    overview:
+      'AI工事・リフォーム見積管理システムは、見積を「作る」だけでなく、原価と粗利を同じ画面で確認しながら判断できるようにした業務システムです。金額計算はすべてサーバー側で確定させ、組織ごとのデータ分離はデータベースのRLSで担保しています。公開しているのは登録不要で閲覧できる読み取り専用のデモ環境です。',
+    detailSections: [
+      {
+        title: '見積作成から発行までの流れ',
+        items: [
+          '顧客の登録',
+          '工事案件の登録（工事種別・施工場所・工期）',
+          '見積の作成と明細入力',
+          '金額・消費税・原価・粗利益・粗利率の自動計算',
+          'ルール／AIによる見積チェック',
+          '見積ステータスの更新',
+          '見積書PDFの発行',
+        ],
+      },
+      {
+        title: '金額はサーバー側で確定させる',
+        body:
+          '入力はZodのスキーマでクライアント・サーバーの両方を同じ定義で検証します。合計金額はブラウザから受け取らず、保存前にサーバーで必ず再計算するため、画面側の表示が壊れても保存される金額は変わりません。',
+      },
+      {
+        title: 'Supabase / RLSによるデータ分離',
+        body:
+          '認証はSupabase Authで、セッションはproxy（middleware相当）とServer Componentの両方で毎回検証します。全業務テーブルにorganization_idを持たせ、RLSポリシーで所属組織以外のデータは参照・更新・削除できません。URLのIDを差し替えても他組織のデータには到達しません。',
+      },
+      {
+        title: 'AI見積チェック',
+        body:
+          '常時動作するルールエンジンが、粗利率の低さ、販売単価が原価を下回る明細、数量・単価0、過大な値引き、重複明細、有効期限の矛盾などを判定します。APIキーを設定した環境では、見積データを根拠にした確認事項をAIが追加で提示します。保有していない市場価格との比較は行いません。AIが使えない場合もルールチェックだけで動作します。',
+      },
+      {
+        title: '見積書PDFの生成',
+        body:
+          '見積書はサーバー側で生成します。Chromiumやネイティブモジュールに依存しない純JSの構成で、日本語フォントを同梱し、禁則処理付きの独自行分割によって日本語の途中で不自然に改行されないようにしています。',
+      },
+      {
+        title: '公開デモを読み取り専用にする設計',
+        body:
+          '公開デモは誰でも同じアカウントで入るため、書き込みの禁止をデータベース側で完結させています。RLSポリシー・テーブルのトリガー・採番などのRPC関数の3層で書き込みを拒否するため、画面を経由せずAPIを直接呼び出しても編集・削除はできません。アプリ側の制御は、閲覧者に分かりやすくエラーを示すためのものです。',
+      },
+    ],
+    outcome: [
+      '公開環境（Vercel Production）で「デモ環境を見る」からログインし、ダッシュボードと「デモ閲覧モード」の表示を確認',
+      'デモアカウントが読み取り専用になっていることを、書き込みを試みる検証スクリプト17項目で確認',
+      '金額計算・ルールエンジン・AI応答の検証・PDFの行分割を対象にした自動テスト99件が通ることを確認',
+      '型チェック・Lint・本番ビルドが通ることを確認',
+      'PC・スマートフォンの両方で、ダッシュボード・見積一覧・見積詳細を閲覧できることを確認',
+    ],
+    safety:
+      '公開しているのはポートフォリオ用のデモ環境です。会社名・顧客名・工事案件・金額はすべて架空で、実在の個人・法人とは関係ありません。デモ用アカウントはデータベース側で読み取り専用に設定しているため、閲覧はできますが、新規作成・編集・削除などの書き込み操作はできません。',
+    role: [
+      '企画',
+      '要件設計',
+      '画面デザイン',
+      'データベース設計',
+      '見積計算ロジックの実装',
+      'AI・ルールチェックの実装',
+      'PDF出力の実装',
+      '認証・権限設計',
+      'テスト',
+      '本番公開',
+    ],
+    group: 'Web Applications',
+    projectType: 'Self-directed Project',
+    status: 'released',
+    statusNote:
+      'Vercelで公開中です。ログイン画面の「デモ環境を見る」から、登録不要で閲覧できます。デモは読み取り専用のため、編集・削除はできません。',
+    stack: [
+      'Next.js',
+      'React',
+      'TypeScript',
+      'Tailwind CSS',
+      'Supabase PostgreSQL',
+      'Supabase Auth',
+      'RLS',
+      'Zod',
+      'React Hook Form',
+      '@react-pdf/renderer',
+      'Vitest',
+      'Vercel',
+    ],
+    tags: ['建設', 'リフォーム', '見積管理', 'AI', '業務支援'],
+    colorLabel: 'Next.js / TypeScript / Supabase PostgreSQL / RLS / Vercel',
+    accent: '#e0964a',
+    tint: '#1a1207',
+    image: '/works/images/ai-construction-estimate-card.png',
+    imageAlt:
+      'AI工事・リフォーム見積管理システムのダッシュボード。デモ閲覧モードの表示、今月の見積件数、受注見込額、平均粗利率、要注意見積の集計が並んでいる',
+    imagePosition: 'center top',
+    galleryNote:
+      '公開中のデモ環境の実画面です。表示している会社名・顧客名・金額はすべて架空のデータです。',
+    gallery: [
+      {
+        src: '/works/images/ai-construction-estimate/01-dashboard.png',
+        alt: 'ダッシュボード画面。今月の見積作成件数、受注見込額、年間受注金額、平均粗利率、要注意見積件数、見積金額の推移、ステータス別件数が表示されている',
+        caption: '見積件数・受注見込額・平均粗利率・要注意見積を、ダッシュボードで集計して表示する',
+        width: 1600,
+        height: 1000,
+      },
+      {
+        src: '/works/images/ai-construction-estimate/02-estimate.png',
+        alt: '見積詳細画面。顧客・工事案件・発行日・有効期限などの見積情報と、明細、税抜合計、消費税、税込合計、原価合計、粗利益、粗利率が表示されている',
+        caption: '見積明細から税抜・税込の合計、原価合計、粗利益、粗利率を自動計算して表示する',
+        width: 1600,
+        height: 1000,
+      },
+    ],
+    liveUrl: 'https://ai-construction-estimate-app.vercel.app',
+    githubUrl: 'https://github.com/aicmode/ai-construction-estimate',
+    detailPath: '/works/ai-construction-estimate',
+    showGithubOnCard: true,
+    addedOn: '2026-09-07',
+    order: 1.3,
+    featured: true,
+    year: 2026,
+  },
+  {
     id: 'ai-line-inquiry-assistant',
     title: 'AI LINE Inquiry Assistant',
     subtitle: 'LINE問い合わせの整理ツール',
@@ -187,6 +332,7 @@ export const projects: readonly Project[] = [
     githubUrl: 'https://github.com/aicmode/ai-line-inquiry-assistant',
     detailPath: '/works/ai-line-inquiry-assistant',
     showGithubOnCard: true,
+    addedOn: '2026-09-03',
     order: 1.4,
     featured: true,
     year: 2026,
@@ -311,6 +457,7 @@ export const projects: readonly Project[] = [
     githubUrl: 'https://github.com/aicmode/ai-real-estate-matcher',
     detailPath: '/works/ai-real-estate-matcher',
     showGithubOnCard: true,
+    addedOn: '2026-09-04',
     order: 1.45,
     featured: true,
     year: 2026,
@@ -352,6 +499,7 @@ export const projects: readonly Project[] = [
     githubUrl: 'https://github.com/aicmode/medichart-lite',
     ctaLabel: '実際に見る',
     showGithubOnCard: true,
+    addedOn: '2026-08-01',
     order: 1.5,
     featured: true,
     year: 2026,
@@ -440,6 +588,7 @@ export const projects: readonly Project[] = [
     githubUrl: 'https://github.com/aicmode/offline-handover',
     ctaLabel: '実際に見る',
     showGithubOnCard: true,
+    addedOn: '2026-08-13',
     order: 1.6,
     featured: true,
     year: 2026,
@@ -535,6 +684,7 @@ export const projects: readonly Project[] = [
     ],
     githubUrl: 'https://github.com/aicmode/MedDose',
     ctaLabel: '中身を見る',
+    addedOn: '2026-08-04',
     order: 1.7,
     featured: true,
     year: 2026,
@@ -665,6 +815,7 @@ export const projects: readonly Project[] = [
     githubUrl: 'https://github.com/aicmode/meta-ad-library-monitor',
     detailPath: '/works/meta-ad-library-monitor',
     showGithubOnCard: true,
+    addedOn: '2026-09-01',
     order: 1.8,
     featured: true,
     year: 2026,

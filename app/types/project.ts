@@ -268,6 +268,15 @@ export type Project = {
   ctaLabel?: string
   /** Show a source link beside the primary CTA on the work card. */
   showGithubOnCard?: boolean
+  /**
+   * The date this piece was added to the portfolio, `YYYY-MM-DD`.
+   *
+   * The AI・業務自動化 section reads newest first, and this is the only thing
+   * that decides that order: a new piece is added with today's date and lands
+   * at the top on its own, with nothing else reordered by hand. `order` keeps
+   * its existing job — the curated Selected Works list and the web archive.
+   */
+  addedOn?: string
   /** Lower numbers appear first; also drives Selected Works. */
   order: number
   featured?: boolean
@@ -320,6 +329,15 @@ export type CaseStudy = {
   githubUrl?: string
   screenshot?: string
   screenshotAlt?: string
+  /**
+   * The date this piece was added to the portfolio, `YYYY-MM-DD`.
+   *
+   * The AI・業務自動化 section reads newest first, and this is the only thing
+   * that decides that order: a new piece is added with today's date and lands
+   * at the top on its own, with nothing else reordered by hand. `order` keeps
+   * its existing job — the curated Selected Works list and the web archive.
+   */
+  addedOn?: string
   order: number
   year: number
 }

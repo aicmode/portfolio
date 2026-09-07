@@ -29,32 +29,9 @@ type FeaturedWork = {
   githubUrl?: string
   /** Route of the work's own page on this site, when it has one. */
   detailPath?: string
+  /** `YYYY-MM-DD` the piece was added. Sorts this section, newest first. */
+  addedOn?: string
 }
-
-/**
- * What this studio is, in the order it should be read: AI and automation first
- * and at length, web production second and briefly. The two groups are the
- * whole of that hierarchy — nothing here is colour-coded or restyled to make
- * the point, the heading order and the group sizes make it.
- *
- * The reading order of the MAIN group's opening cards. Ids listed here come
- * first, in this order; every other AI / automation piece follows on after
- * them, ordered by its own `order` field.
- *
- * This is the whole of the curation. Adding a new AI tool, automation, agent
- * or API integration means adding it to `projects.ts` (or `caseStudies.ts`)
- * with an AI-domain `group` — it then appears in this section on its own, with
- * no change to this file.
- */
-const AI_LEAD_ORDER: readonly string[] = [
-  'medibrief-ai',
-  'ai-line-inquiry-assistant',
-  'ai-real-estate-matcher',
-  'medichart-lite',
-  'handover-maker',
-  'meddose',
-  'meta-ad-library-monitor',
-]
 
 /**
  * Card copy written for one specific piece, where the product name or a
@@ -64,6 +41,9 @@ const AI_LEAD_ORDER: readonly string[] = [
  * writes it a line here.
  */
 const AI_CARD_COPY: Record<string, { title?: string; label?: string; description?: string }> = {
+  'ai-construction-estimate': {
+    label: '建設・リフォーム × AI × 業務支援',
+  },
   'medibrief-ai': {
     title: 'MediBrief',
     label: '医療 × AI',
@@ -108,6 +88,7 @@ function fromProject(project: Project): FeaturedWork {
     liveUrl: project.liveUrl,
     githubUrl: project.githubUrl,
     detailPath: project.detailPath,
+    addedOn: project.addedOn,
   }
 }
 
@@ -125,15 +106,30 @@ function fromCaseStudy(study: CaseStudy): FeaturedWork {
     status: study.status,
     liveUrl: study.liveUrl,
     githubUrl: study.githubUrl,
+    addedOn: study.addedOn,
   }
 }
 
 /**
- * MAIN: every AI / automation piece the portfolio holds, from both data files.
+ * MAIN: every AI / automation piece the portfolio holds, from both data files,
+ * newest first.
+ *
+ * What this studio is, in the order it should be read: AI and automation first
+ * and at length, web production second and briefly. The two groups are the
+ * whole of that hierarchy — nothing here is colour-coded or restyled to make
+ * the point, the heading order and the group sizes make it.
  *
  * A case study and a project can describe the same build, so the id decides:
  * the case study is the fuller record and wins, and the project entry for it is
  * dropped rather than shown twice.
+ *
+ * The sort is the whole of the curation: `addedOn` descending, with no lead
+ * list to keep by hand and nothing pinned to the front, so the newest piece is
+ * always the first card, top-left. Adding a new AI tool, automation, agent or
+ * API integration means adding it to `projects.ts` (or `caseStudies.ts`) with
+ * an AI-domain `group` and today's `addedOn` — it then opens this section on
+ * its own, and every older piece keeps its place with no edit here. A piece
+ * with no date sorts after the dated ones rather than jumping the queue.
  */
 const aiWorks: readonly FeaturedWork[] = (() => {
   const caseStudyIds = new Set(caseStudies.map((study) => study.id))
@@ -142,12 +138,7 @@ const aiWorks: readonly FeaturedWork[] = (() => {
     ...aiProjects.filter((project) => !caseStudyIds.has(project.id)).map(fromProject),
   ]
 
-  const lead = AI_LEAD_ORDER.map((id) => all.find((work) => work.id === id)).filter(
-    (work): work is FeaturedWork => work !== undefined,
-  )
-  const rest = all.filter((work) => !AI_LEAD_ORDER.includes(work.id))
-
-  return [...lead, ...rest]
+  return all.slice().sort((a, b) => (b.addedOn ?? '').localeCompare(a.addedOn ?? ''))
 })()
 
 /**

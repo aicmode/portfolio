@@ -59,8 +59,9 @@ test.describe('short sales landing page', () => {
     // Every AI / automation piece lives here now — the ones that used to be
     // reachable only from the archive included, since /works is web-only.
     const featured = works.locator('article')
-    await expect(featured).toHaveCount(8)
+    await expect(featured).toHaveCount(9)
     for (const title of [
+      'AI工事・リフォーム見積管理システム',
       'MediBrief',
       'AI LINE Inquiry Assistant',
       'AI Real Estate Matcher',
@@ -72,11 +73,39 @@ test.describe('short sales landing page', () => {
     ]) {
       await expect(featured.getByRole('heading', { name: title, exact: true })).toBeVisible()
     }
-    expect((await featured.locator('h4').allTextContents()).slice(0, 3)).toEqual([
-      'MediBrief',
-      'AI LINE Inquiry Assistant',
+    // Newest first, and nothing pinned: MediBrief is the oldest AI piece, so it
+    // closes the group rather than opening it.
+    expect((await featured.locator('h4').allTextContents()).slice(0, 8)).toEqual([
+      'AI工事・リフォーム見積管理システム',
       'AI Real Estate Matcher',
+      'AI LINE Inquiry Assistant',
+      'Meta Ad Library Monitor',
+      'Handover Maker',
+      'MedDose',
+      'MediChart Lite',
+      'MediBrief',
     ])
+
+    const estimateCard = featured.filter({
+      has: page.getByRole('heading', { name: 'AI工事・リフォーム見積管理システム', exact: true }),
+    })
+    await expect(estimateCard).toContainText('建設・リフォーム × AI × 業務支援')
+    await expect(estimateCard).toContainText(
+      '顧客・工事案件・見積を一元管理し、明細計算・粗利確認・AIチェック・PDF出力まで行える建設・リフォーム業向け見積管理システム。',
+    )
+    await expect(estimateCard).toContainText('自主制作 ・ 公開中')
+    await expect(estimateCard.getByRole('link', { name: '詳細を見る' })).toHaveAttribute(
+      'href',
+      '/works/ai-construction-estimate',
+    )
+    await expect(estimateCard.getByRole('link', { name: /実際に見る/ })).toHaveAttribute(
+      'href',
+      'https://ai-construction-estimate-app.vercel.app',
+    )
+    await expect(estimateCard.getByRole('link', { name: /GitHubで見る/ })).toHaveAttribute(
+      'href',
+      'https://github.com/aicmode/ai-construction-estimate',
+    )
 
     const matcherCard = featured.filter({
       has: page.getByRole('heading', { name: 'AI Real Estate Matcher', exact: true }),
@@ -178,7 +207,7 @@ test.describe('short sales landing page', () => {
     }))
     expect(dimensions.scrollWidth).toBe(dimensions.clientWidth)
     expect(dimensions.height).toBeLessThan(22000)
-    await expect(page.locator('#works article')).toHaveCount(8)
+    await expect(page.locator('#works article')).toHaveCount(9)
 
     await page.getByRole('button', { name: 'メニューを開く' }).click()
     await expect(page.getByRole('link', { name: 'お問い合わせ', exact: true })).toBeVisible()
@@ -216,6 +245,7 @@ test.describe('detail pages retain the removed information', () => {
 
     // None of the AI / automation work is listed here.
     for (const title of [
+      'AI工事・リフォーム見積管理システム',
       'MediBrief',
       'AI LINE Inquiry Assistant',
       'MediChart Lite',
@@ -309,7 +339,12 @@ test.describe('detail pages retain the removed information', () => {
   })
 
   test('the AI detail pages are still reachable and intact', async ({ page }) => {
-    for (const path of ['/works/meddose', '/works/meta-ad-library-monitor', '/works/ai-real-estate-matcher']) {
+    for (const path of [
+      '/works/meddose',
+      '/works/meta-ad-library-monitor',
+      '/works/ai-real-estate-matcher',
+      '/works/ai-construction-estimate',
+    ]) {
       const response = await page.goto(`${BASE_URL}${path}`, { waitUntil: 'networkidle' })
       expect(response?.status()).toBe(200)
       await expect(page.locator('h1')).toBeVisible()
@@ -357,6 +392,46 @@ test.describe('detail pages retain the removed information', () => {
       }))
       expect(dimensions.scrollWidth).toBe(dimensions.clientWidth)
       await page.screenshot({ path: `/tmp/aicmode-real-estate-detail-${width}.png`, fullPage: true })
+    }
+
+    expect(runtimeErrors).toEqual([])
+  })
+
+  test('AI construction estimate detail keeps its content, links and demo notice', async ({ page }) => {
+    const runtimeErrors = collectRuntimeErrors(page)
+
+    for (const width of [1440, 390]) {
+      await page.setViewportSize({ width, height: width === 1440 ? 900 : 844 })
+      const response = await page.goto(`${BASE_URL}/works/ai-construction-estimate`, { waitUntil: 'networkidle' })
+      expect(response?.status()).toBe(200)
+
+      await expect(
+        page.getByRole('heading', { name: 'AI工事・リフォーム見積管理システム', exact: true }),
+      ).toBeVisible()
+      for (const heading of ['課題', '解決', '特徴', '技術的ポイント', '使った技術', '確認できたこと']) {
+        await expect(page.getByRole('heading', { name: heading, exact: true })).toBeAttached()
+      }
+      await expect(page.getByText('Supabase Authによる認証と、組織・ユーザー単位のデータ分離')).toBeAttached()
+      await expect(page.getByText('公開デモを読み取り専用にする設計')).toBeAttached()
+      await expect(page.getByText('AI見積チェック', { exact: true })).toBeAttached()
+      // The demo must never read as an editable production service.
+      await expect(page.getByText(/読み取り専用に設定しているため/)).toBeAttached()
+
+      await expect(page.getByRole('link', { name: /実際に見る/ }).first()).toHaveAttribute(
+        'href',
+        'https://ai-construction-estimate-app.vercel.app',
+      )
+      await expect(page.getByRole('link', { name: /GitHubで見る/ }).first()).toHaveAttribute(
+        'href',
+        'https://github.com/aicmode/ai-construction-estimate',
+      )
+
+      const dimensions = await page.evaluate(() => ({
+        scrollWidth: document.documentElement.scrollWidth,
+        clientWidth: document.documentElement.clientWidth,
+      }))
+      expect(dimensions.scrollWidth).toBe(dimensions.clientWidth)
+      await page.screenshot({ path: `/tmp/aicmode-construction-detail-${width}.png`, fullPage: true })
     }
 
     expect(runtimeErrors).toEqual([])

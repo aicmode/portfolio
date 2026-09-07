@@ -88,6 +88,7 @@ export const caseStudies: readonly CaseStudy[] = [
     githubUrl: 'https://github.com/aicmode/medibrief-ai',
     screenshot: '/works/case-studies/medibrief-ai.png',
     screenshotAlt: 'MediBriefの画面。自由入力から7項目の受診メモが生成されている',
+    addedOn: '2026-07-30',
     order: 1,
     year: 2026,
   },

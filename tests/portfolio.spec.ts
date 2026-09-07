@@ -59,7 +59,7 @@ test.describe('short sales landing page', () => {
     // Every AI / automation piece lives here now — the ones that used to be
     // reachable only from the archive included, since /works is web-only.
     const featured = works.locator('article')
-    await expect(featured).toHaveCount(9)
+    await expect(featured).toHaveCount(8)
     for (const title of [
       'MediBrief',
       'AI LINE Inquiry Assistant',
@@ -68,7 +68,6 @@ test.describe('short sales landing page', () => {
       'Handover Maker',
       'MedDose',
       'Meta Ad Library Monitor',
-      'Handover AI',
       'Nurse FUKUGYO Lab',
     ]) {
       await expect(featured.getByRole('heading', { name: title, exact: true })).toBeVisible()
@@ -179,7 +178,7 @@ test.describe('short sales landing page', () => {
     }))
     expect(dimensions.scrollWidth).toBe(dimensions.clientWidth)
     expect(dimensions.height).toBeLessThan(22000)
-    await expect(page.locator('#works article')).toHaveCount(9)
+    await expect(page.locator('#works article')).toHaveCount(8)
 
     await page.getByRole('button', { name: 'メニューを開く' }).click()
     await expect(page.getByRole('link', { name: 'お問い合わせ', exact: true })).toBeVisible()
@@ -221,7 +220,6 @@ test.describe('detail pages retain the removed information', () => {
       'AI LINE Inquiry Assistant',
       'MediChart Lite',
       'Handover Maker',
-      'Handover AI',
       'MedDose',
       'Meta Ad Library Monitor',
     ]) {
@@ -308,19 +306,6 @@ test.describe('detail pages retain the removed information', () => {
     }
 
     expect(runtimeErrors).toEqual([])
-  })
-
-  test('an AI work outside AI_LEAD_ORDER still lands on the top page with its links', async ({ page }) => {
-    await page.goto(`${BASE_URL}/`, { waitUntil: 'networkidle' })
-
-    const handoverAi = page.locator('#works article').filter({
-      has: page.getByRole('heading', { name: 'Handover AI', exact: true }),
-    })
-    await expect(handoverAi).toHaveCount(1)
-    await expect(handoverAi.getByRole('link', { name: /実際に見る/ })).toHaveAttribute(
-      'href',
-      'https://handover-ai-chi.vercel.app',
-    )
   })
 
   test('the AI detail pages are still reachable and intact', async ({ page }) => {

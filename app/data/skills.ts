@@ -3,9 +3,8 @@
  *
  * Inclusion rule: every entry is traceable to a public repository under
  * github.com/aicmode, to this codebase, or to a build actually stood up and
- * verified in a real environment (AWS). Notably NOT listed, because there is
- * no implementation to back them yet: Supabase, vector search / RAG, and an
- * automated test suite. They can be added the moment a repo exists.
+ * verified in a real environment. Notably NOT listed, because there is no
+ * implementation to back them yet: Supabase and other unverified services.
  */
 
 export type TechSkill = { label: string; icon: string }
@@ -53,11 +52,35 @@ export const skillGroups: readonly SkillGroupData[] = [
     ],
   },
   {
+    title: 'データベース',
+    note: '検索用データを安全にためる部分',
+    items: [
+      { label: 'PostgreSQL', icon: 'PG' },
+      { label: 'Neon', icon: 'N' },
+      { label: 'pgvector', icon: '→' },
+    ],
+    caption: 'NeonのPostgreSQLにpgvectorを導入し、文書のベクトル検索をProduction環境で検証しました。',
+  },
+  {
     title: 'クラウド・インフラ',
     note: 'サービスを動かすためのクラウド基盤',
     items: [{ label: 'AWS', icon: '⬢' }],
     caption:
-      'IAM / S3 / Lambda / EC2 / RDS（PostgreSQL）/ CloudWatch / VPC / Security Group — 基礎構築とサービス間連携を実際のAWS環境で検証しました。',
+      'IAM / S3 / Lambda / EC2 / RDS / CloudWatch / VPC / Security Group — 基礎構築とサービス間連携を実際のAWS環境で検証しました。',
+  },
+  {
+    title: 'AI・RAG',
+    note: '社内資料を検索して、根拠付きで答える部分',
+    items: [
+      { label: 'RAG', icon: 'R' },
+      { label: 'OCR', icon: '◫' },
+      { label: 'PDF解析', icon: 'PDF' },
+      { label: 'Chunking', icon: '≡' },
+      { label: 'OpenAI Embeddings', icon: 'E' },
+      { label: 'Vector Search', icon: '⌕' },
+    ],
+    caption:
+      'RAG（Retrieval-Augmented Generation）— OCR・PDF解析・Chunking・Embedding・Vector Searchをつなぎ、引用付き回答まで実装しました。',
   },
   {
     title: 'AIと自動化',

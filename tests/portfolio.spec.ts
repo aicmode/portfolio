@@ -540,12 +540,56 @@ test.describe('detail pages retain the removed information', () => {
     expect(runtimeErrors).toEqual([])
   })
 
-  test('about retains profile, strengths, values, and skills', async ({ page }) => {
-    await page.goto(`${BASE_URL}/about`)
-    await expect(page.getByText('とくに得意な6つのこと')).toBeVisible()
-    await expect(page.getByText('大切にしていること', { exact: true })).toBeVisible()
-    await expect(page.getByText('使える技術の一覧')).toBeVisible()
-    await expect(page.getByText('考え方・進め方')).toBeVisible()
+  test('about retains its content and presents the verified RAG skills without duplicates', async ({ page }) => {
+    const runtimeErrors = collectRuntimeErrors(page)
+    const failedRequests = collectFailedRequests(page)
+
+    for (const width of [1440, 390]) {
+      await page.setViewportSize({ width, height: width === 1440 ? 900 : 844 })
+      await page.goto(`${BASE_URL}/about`, { waitUntil: 'networkidle' })
+
+      await expect(page.getByText('とくに得意な6つのこと')).toBeVisible()
+      await expect(page.getByText('大切にしていること', { exact: true })).toBeVisible()
+      await expect(page.getByText('使える技術の一覧')).toBeVisible()
+      await expect(page.getByText('考え方・進め方')).toBeVisible()
+
+      const skills = page.locator('#skills')
+      const ragGroup = skills.getByRole('heading', { name: 'AI・RAG', exact: true }).locator('xpath=../../..')
+      const databaseGroup = skills
+        .getByRole('heading', { name: 'データベース', exact: true })
+        .locator('xpath=../../..')
+      for (const skill of ['RAG', 'OCR', 'PDF解析', 'Chunking', 'OpenAI Embeddings', 'Vector Search']) {
+        await expect(ragGroup.getByText(skill, { exact: true })).toHaveCount(1)
+      }
+      for (const skill of ['PostgreSQL', 'Neon', 'pgvector']) {
+        await expect(databaseGroup.getByText(skill, { exact: true })).toHaveCount(1)
+      }
+      for (const existingSkill of [
+        'TypeScript',
+        'React',
+        'Next.js',
+        'Tailwind CSS',
+        'OpenAI API',
+        'Git',
+        'GitHub',
+        'Vercel',
+      ]) {
+        await expect(skills.getByText(existingSkill, { exact: true })).toHaveCount(1)
+      }
+
+      const labels = await skills.locator('.skill-card span:last-child').allTextContents()
+      expect(labels).toHaveLength(48)
+      expect(new Set(labels).size).toBe(labels.length)
+
+      const dimensions = await page.evaluate(() => ({
+        scrollWidth: document.documentElement.scrollWidth,
+        clientWidth: document.documentElement.clientWidth,
+      }))
+      expect(dimensions.scrollWidth).toBe(dimensions.clientWidth)
+    }
+
+    expect(runtimeErrors).toEqual([])
+    expect(failedRequests).toEqual([])
   })
 
   test('FAQ retains all ten answers', async ({ page }) => {

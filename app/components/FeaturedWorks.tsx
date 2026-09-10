@@ -41,6 +41,9 @@ type FeaturedWork = {
  * writes it a line here.
  */
 const AI_CARD_COPY: Record<string, { title?: string; label?: string; description?: string }> = {
+  'enterprise-rag-knowledge-ai': {
+    label: 'RAG × AI × 業務支援',
+  },
   'ai-construction-estimate': {
     label: '建設・リフォーム × AI × 業務支援',
   },

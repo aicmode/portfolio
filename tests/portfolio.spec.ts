@@ -14,9 +14,20 @@ function collectRuntimeErrors(page: Page) {
   return errors
 }
 
+function collectFailedRequests(page: Page) {
+  const failures: string[] = []
+
+  page.on('requestfailed', (request) => {
+    failures.push(`${request.method()} ${request.url()} — ${request.failure()?.errorText ?? 'unknown error'}`)
+  })
+
+  return failures
+}
+
 test.describe('short sales landing page', () => {
   test('shows only the six sales sections and keeps the primary routes clear', async ({ page }) => {
     const runtimeErrors = collectRuntimeErrors(page)
+    const failedRequests = collectFailedRequests(page)
 
     await page.setViewportSize({ width: 1440, height: 900 })
     await page.goto(`${BASE_URL}/`, { waitUntil: 'networkidle' })
@@ -59,8 +70,9 @@ test.describe('short sales landing page', () => {
     // Every AI / automation piece lives here now — the ones that used to be
     // reachable only from the archive included, since /works is web-only.
     const featured = works.locator('article')
-    await expect(featured).toHaveCount(9)
+    await expect(featured).toHaveCount(10)
     for (const title of [
+      'Enterprise RAG Knowledge AI',
       'AI工事・リフォーム見積管理システム',
       'MediBrief',
       'AI LINE Inquiry Assistant',
@@ -75,7 +87,8 @@ test.describe('short sales landing page', () => {
     }
     // Newest first, and nothing pinned: MediBrief is the oldest AI piece, so it
     // closes the group rather than opening it.
-    expect((await featured.locator('h4').allTextContents()).slice(0, 8)).toEqual([
+    expect((await featured.locator('h4').allTextContents()).slice(0, 9)).toEqual([
+      'Enterprise RAG Knowledge AI',
       'AI工事・リフォーム見積管理システム',
       'AI Real Estate Matcher',
       'AI LINE Inquiry Assistant',
@@ -85,6 +98,38 @@ test.describe('short sales landing page', () => {
       'MediChart Lite',
       'MediBrief',
     ])
+
+    const enterpriseRagCard = featured.filter({
+      has: page.getByRole('heading', { name: 'Enterprise RAG Knowledge AI', exact: true }),
+    })
+    await expect(enterpriseRagCard).toContainText('RAG × AI × 業務支援')
+    await expect(enterpriseRagCard).toContainText(
+      '社内PDFを解析・ベクトル検索し、資料名・ページ・引用箇所を根拠として回答する社内ナレッジ検索AI。',
+    )
+    await expect(enterpriseRagCard).toContainText('自主制作 ・ 公開中')
+    await expect(enterpriseRagCard.getByRole('link', { name: '詳細を見る' })).toHaveAttribute(
+      'href',
+      '/works/enterprise-rag-knowledge-ai',
+    )
+    const enterpriseRagLiveLink = enterpriseRagCard.getByRole('link', { name: /実際に見る/ })
+    await expect(enterpriseRagLiveLink).toHaveAttribute(
+      'href',
+      'https://enterprise-rag-knowledge-ai.vercel.app/',
+    )
+    await expect(enterpriseRagLiveLink).toHaveAttribute('target', '_blank')
+    await expect(enterpriseRagLiveLink).toHaveAttribute('rel', /noopener/)
+    const enterpriseRagGithubLink = enterpriseRagCard.getByRole('link', { name: /GitHubで見る/ })
+    await expect(enterpriseRagGithubLink).toHaveAttribute(
+      'href',
+      'https://github.com/aicmode/enterprise-rag-knowledge-ai',
+    )
+    await expect(enterpriseRagGithubLink).toHaveAttribute('target', '_blank')
+    await expect(enterpriseRagGithubLink).toHaveAttribute('rel', /noopener/)
+    const enterpriseRagImage = enterpriseRagCard.getByAltText(/Enterprise RAG Knowledge AIのダッシュボード/)
+    await expect(enterpriseRagImage).toBeVisible()
+    await expect
+      .poll(() => enterpriseRagImage.evaluate((image: HTMLImageElement) => image.naturalWidth))
+      .toBeGreaterThan(0)
 
     const estimateCard = featured.filter({
       has: page.getByRole('heading', { name: 'AI工事・リフォーム見積管理システム', exact: true }),
@@ -192,10 +237,12 @@ test.describe('short sales landing page', () => {
     await page.waitForTimeout(300)
     await page.screenshot({ path: '/tmp/aicmode-home-pc.png', fullPage: true })
     expect(runtimeErrors).toEqual([])
+    expect(failedRequests).toEqual([])
   })
 
   test('fits a phone viewport without horizontal overflow', async ({ page }) => {
     const runtimeErrors = collectRuntimeErrors(page)
+    const failedRequests = collectFailedRequests(page)
 
     await page.setViewportSize({ width: 390, height: 844 })
     await page.goto(`${BASE_URL}/`, { waitUntil: 'networkidle' })
@@ -207,7 +254,7 @@ test.describe('short sales landing page', () => {
     }))
     expect(dimensions.scrollWidth).toBe(dimensions.clientWidth)
     expect(dimensions.height).toBeLessThan(22000)
-    await expect(page.locator('#works article')).toHaveCount(9)
+    await expect(page.locator('#works article')).toHaveCount(10)
 
     await page.getByRole('button', { name: 'メニューを開く' }).click()
     await expect(page.getByRole('link', { name: 'お問い合わせ', exact: true })).toBeVisible()
@@ -216,6 +263,7 @@ test.describe('short sales landing page', () => {
     await page.waitForTimeout(1200)
     await page.screenshot({ path: '/tmp/aicmode-home-mobile.png', fullPage: true })
     expect(runtimeErrors).toEqual([])
+    expect(failedRequests).toEqual([])
   })
 })
 
@@ -245,6 +293,7 @@ test.describe('detail pages retain the removed information', () => {
 
     // None of the AI / automation work is listed here.
     for (const title of [
+      'Enterprise RAG Knowledge AI',
       'AI工事・リフォーム見積管理システム',
       'MediBrief',
       'AI LINE Inquiry Assistant',
@@ -340,6 +389,7 @@ test.describe('detail pages retain the removed information', () => {
 
   test('the AI detail pages are still reachable and intact', async ({ page }) => {
     for (const path of [
+      '/works/enterprise-rag-knowledge-ai',
       '/works/meddose',
       '/works/meta-ad-library-monitor',
       '/works/ai-real-estate-matcher',
@@ -358,6 +408,59 @@ test.describe('detail pages retain the removed information', () => {
       'href',
       '/works/meta-ad-library-monitor',
     )
+  })
+
+  test('Enterprise RAG detail keeps its RAG pipeline, links, images and responsive layout', async ({ page }) => {
+    const runtimeErrors = collectRuntimeErrors(page)
+    const failedRequests = collectFailedRequests(page)
+
+    for (const width of [1440, 390]) {
+      await page.setViewportSize({ width, height: width === 1440 ? 900 : 844 })
+      const response = await page.goto(`${BASE_URL}/works/enterprise-rag-knowledge-ai`, {
+        waitUntil: 'networkidle',
+      })
+      expect(response?.status()).toBe(200)
+
+      await expect(page.getByRole('heading', { name: 'Enterprise RAG Knowledge AI', exact: true })).toBeVisible()
+      for (const heading of ['課題', '解決', '特徴', '技術的ポイント', '使った技術', '確認できたこと']) {
+        await expect(page.getByRole('heading', { name: heading, exact: true })).toBeAttached()
+      }
+      await expect(page.getByText('PDFから根拠付き回答までの流れ')).toBeAttached()
+      await expect(page.getByText('日本語PDFとスキャンPDFの解析')).toBeAttached()
+      await expect(page.getByText('pgvectorによる検索とRAG回答')).toBeAttached()
+      await expect(page.getByText('Citationとフィードバック')).toBeAttached()
+      await expect(page.getByText('公開Productionのデモ設計')).toBeAttached()
+      await expect(page.getByText('OpenAI Embeddings', { exact: true })).toBeAttached()
+      await expect(page.getByText('Neon', { exact: true })).toBeAttached()
+      await expect(page.getByText('pgvector', { exact: true })).toBeAttached()
+      await expect(page.locator('main')).not.toContainText('Supabase')
+
+      const liveLink = page.getByRole('link', { name: /実際に見る/ }).first()
+      await expect(liveLink).toHaveAttribute('href', 'https://enterprise-rag-knowledge-ai.vercel.app/')
+      await expect(liveLink).toHaveAttribute('target', '_blank')
+      await expect(liveLink).toHaveAttribute('rel', /noopener/)
+      const githubLink = page.getByRole('link', { name: /GitHubで見る/ }).first()
+      await expect(githubLink).toHaveAttribute('href', 'https://github.com/aicmode/enterprise-rag-knowledge-ai')
+      await expect(githubLink).toHaveAttribute('target', '_blank')
+      await expect(githubLink).toHaveAttribute('rel', /noopener/)
+
+      const images = page.locator('img')
+      await expect(images).toHaveCount(4)
+      for (const image of await images.all()) {
+        await image.scrollIntoViewIfNeeded()
+        await expect.poll(() => image.evaluate((element: HTMLImageElement) => element.naturalWidth)).toBeGreaterThan(0)
+      }
+
+      const dimensions = await page.evaluate(() => ({
+        scrollWidth: document.documentElement.scrollWidth,
+        clientWidth: document.documentElement.clientWidth,
+      }))
+      expect(dimensions.scrollWidth).toBe(dimensions.clientWidth)
+      await page.screenshot({ path: `/tmp/aicmode-enterprise-rag-detail-${width}.png`, fullPage: true })
+    }
+
+    expect(runtimeErrors).toEqual([])
+    expect(failedRequests).toEqual([])
   })
 
   test('AI Real Estate Matcher detail keeps the requested content and links', async ({ page }) => {

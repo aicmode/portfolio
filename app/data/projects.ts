@@ -21,6 +21,157 @@ const unsplash = (id: string) =>
 export const projects: readonly Project[] = [
   // ── Selected Works ────────────────────────────────────────────────────────
   {
+    id: 'enterprise-rag-knowledge-ai',
+    title: 'Enterprise RAG Knowledge AI',
+    subtitle: '社内ナレッジ検索AI',
+    category: 'RAG × AI × 業務支援',
+    plainSummary:
+      '社内PDFを解析・ベクトル検索し、資料名・ページ・引用箇所を根拠として回答する社内ナレッジ検索AI。',
+    summary:
+      '社内マニュアルや規程のPDFをページ単位で解析し、チャンク化・Embedding・pgvector検索を実行。検索で得た箇所だけを根拠にAI回答を生成し、資料名・ページ番号・引用文をCitationとして確認できます。',
+    problem:
+      '社内マニュアルや規程が複数のPDFに分散すると、必要な情報の検索に時間がかかり、回答の根拠となる資料やページを追う作業も発生します。',
+    solution:
+      'PDFの登録からテキスト抽出・OCR・チャンク化・ベクトル検索・根拠付き回答までを一つのフローにまとめ、回答から原文の資料名・ページ・引用箇所へ戻れるようにしました。',
+    features: [
+      '社内マニュアル・規程などのPDFアップロード',
+      '通常PDFのテキスト抽出と、日本語／英語混在PDFの解析',
+      'テキストを持たないスキャンPDFのOCR',
+      'ページ単位の解析と、検索用チャンクへの分割',
+      'OpenAI Embeddingsによるベクトル化',
+      'NeonのPostgreSQL / pgvectorを使ったベクトル検索',
+      '検索結果のみを根拠にしたRAG回答',
+      '資料名・ページ番号・引用文を付けたCitation',
+      '質問履歴と質問詳細の確認',
+      'Helpful / Not Helpfulによる回答評価',
+      '登録不要の匿名デモセッション',
+      '公開デモ向けの利用制限とabuse protection',
+    ],
+    overview:
+      'Enterprise RAG Knowledge AIは、社内PDFの登録から根拠付き回答までを実装した社内ナレッジ検索AIです。単なるチャットUIではなく、PDF.jsとOCRで原文を取り出し、Embeddingとpgvectorで質問に近いチャンクを検索してから回答を生成します。どの回答も資料名・ページ・引用文と一緒に確認できます。',
+    detailSections: [
+      {
+        title: 'PDFから根拠付き回答までの流れ',
+        items: [
+          'PDFをアップロード',
+          'PDF.jsでテキストを抽出し、必要なページはOCRで解析',
+          'ページ情報を保ったまま検索用チャンクに分割',
+          'OpenAI Embeddingsでベクトル化',
+          'PostgreSQL / pgvectorで質問に近いチャンクを検索',
+          '検索した文脈に限定してAI回答を生成',
+          '資料名・ページ番号・引用文をCitationとして表示',
+        ],
+      },
+      {
+        title: '日本語PDFとスキャンPDFの解析',
+        body:
+          '通常のPDFは埋め込まれたテキストを抽出し、画像として保存されたスキャンPDFはOCRで読み取ります。日本語と英語が混在する資料もページ単位で解析し、引用元のページを追跡できる形で保持します。',
+      },
+      {
+        title: 'pgvectorによる検索とRAG回答',
+        body:
+          '質問をEmbeddingし、Neon上のPostgreSQL / pgvectorから近いチャンクを検索します。AIへ渡す文脈を検索結果に限定することで、登録資料を根拠にした回答を生成します。',
+      },
+      {
+        title: 'Citationとフィードバック',
+        body:
+          '回答ごとに資料名・ページ番号・引用文を表示し、利用者が原文と照合できるようにしています。質問履歴と詳細画面を保持し、Helpful / Not Helpfulの評価も記録できます。',
+      },
+      {
+        title: '公開Productionのデモ設計',
+        body:
+          'VercelのProduction環境で、登録不要の匿名デモセッションを発行します。公開デモ向けに質問回数や登録できる資料の制限を設け、不正利用を抑える保護を実装しています。',
+      },
+    ],
+    outcome: [
+      'Vercel Production環境で、PDF登録・通常テキスト抽出・スキャンPDFのOCRを確認',
+      '日本語と英語が混在するPDFをページ単位で解析し、チャンク化・Embedding・pgvector検索が動作することを確認',
+      '検索結果を根拠にしたAI回答と、資料名・ページ番号・引用文のCitationを確認',
+      '質問履歴・質問詳細・Helpful / Not Helpful評価までのE2Eフローを確認',
+      '匿名デモセッションと公開デモ向けの利用制限がProduction環境で動作することを確認',
+    ],
+    safety:
+      '公開しているのは登録不要の匿名デモ環境です。利用制限とabuse protectionを設けていますが、公開デモに機密情報や個人情報を含むPDFをアップロードしないでください。',
+    role: [
+      '企画',
+      '要件設計',
+      '画面デザイン',
+      'PDF解析・OCRの実装',
+      'RAGパイプラインの実装',
+      'データベース設計',
+      'Citation・評価機能の実装',
+      '公開デモの保護設計',
+      'E2E確認',
+      '本番公開',
+    ],
+    group: 'Web Applications',
+    projectType: 'Self-directed Project',
+    status: 'released',
+    statusNote:
+      'VercelのProduction環境で公開中です。登録不要の匿名デモセッションで、PDF登録から根拠付き回答・履歴・評価まで試せます。',
+    stack: [
+      'Next.js App Router',
+      'React',
+      'TypeScript',
+      'PostgreSQL',
+      'Neon',
+      'pgvector',
+      'OpenAI API',
+      'OpenAI Embeddings',
+      'PDF.js',
+      'OCR',
+      'Vercel',
+    ],
+    tags: ['RAG', 'OCR', 'Vector Search', 'Citation', 'PostgreSQL', 'pgvector', '業務支援'],
+    colorLabel: 'Next.js / TypeScript / Neon PostgreSQL / pgvector / OpenAI / Vercel',
+    accent: '#6b5ce7',
+    tint: '#100d2e',
+    image: '/works/images/enterprise-rag-knowledge-ai/01-dashboard.png',
+    imageAlt:
+      'Enterprise RAG Knowledge AIのダッシュボード。登録資料数、解析完了数、累計質問数、Helpful率と、PDFアップロード・AI質問への導線が表示されている',
+    imagePosition: 'center top',
+    galleryNote:
+      'Vercel Productionで公開中の匿名デモセッションの実画面です。画像は資料や質問を登録する前の初期状態です。',
+    gallery: [
+      {
+        src: '/works/images/enterprise-rag-knowledge-ai/01-dashboard.png',
+        alt: 'Enterprise RAG Knowledge AIのダッシュボード。登録資料数・解析完了数・累計質問数・Helpful率の集計が表示されている',
+        caption: '登録資料の解析状況とナレッジAIの利用状況を確認するダッシュボード',
+        width: 1600,
+        height: 1000,
+      },
+      {
+        src: '/works/images/enterprise-rag-knowledge-ai/02-documents.png',
+        alt: 'PDF資料の登録画面。ドラッグ＆ドロップのアップロード領域と、登録済み資料の一覧が表示されている',
+        caption: '日本語・英語混在PDFやスキャンPDFを登録し、テキスト抽出とOCRの解析を開始する',
+        width: 1600,
+        height: 1000,
+      },
+      {
+        src: '/works/images/enterprise-rag-knowledge-ai/03-ask.png',
+        alt: '社内ナレッジAIの質問画面。登録資料のベクトル検索と、資料名・ページ番号・引用文付きの回答について説明されている',
+        caption: '登録資料をベクトル検索し、資料名・ページ・引用文付きの回答を生成する質問画面',
+        width: 1600,
+        height: 1000,
+      },
+      {
+        src: '/works/images/enterprise-rag-knowledge-ai/04-history.png',
+        alt: '質問履歴画面。過去の質問・回答・出典・評価を確認できることが説明されている',
+        caption: '匿名デモセッションごとに、質問・回答・出典・Helpful評価を確認する履歴画面',
+        width: 1600,
+        height: 1000,
+      },
+    ],
+    liveUrl: 'https://enterprise-rag-knowledge-ai.vercel.app/',
+    githubUrl: 'https://github.com/aicmode/enterprise-rag-knowledge-ai',
+    detailPath: '/works/enterprise-rag-knowledge-ai',
+    showGithubOnCard: true,
+    addedOn: '2026-09-10',
+    order: 1.2,
+    featured: true,
+    year: 2026,
+  },
+  {
     id: 'ai-construction-estimate',
     title: 'AI工事・リフォーム見積管理システム',
     subtitle: 'AI Construction Estimate',

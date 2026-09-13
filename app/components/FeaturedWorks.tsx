@@ -41,6 +41,9 @@ type FeaturedWork = {
  * writes it a line here.
  */
 const AI_CARD_COPY: Record<string, { title?: string; label?: string; description?: string }> = {
+  'ai-food-inventory-manager': {
+    label: '食品・小売 × AI × 在庫・発注支援',
+  },
   'enterprise-rag-knowledge-ai': {
     label: 'RAG × AI × 業務支援',
   },

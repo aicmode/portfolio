@@ -21,6 +21,51 @@ const unsplash = (id: string) =>
 export const projects: readonly Project[] = [
   // ── Selected Works ────────────────────────────────────────────────────────
   {
+    id: 'ai-food-inventory-manager',
+    title: 'AI食品在庫・発注管理',
+    subtitle: 'AI Food Inventory Manager',
+    category: '食品・小売 × AI × 在庫・発注支援',
+    plainSummary:
+      '食品事業者向けに、在庫・ロット・賞味期限・廃棄・発注を一元管理し、在庫状況や需要から発注判断を支援する食品在庫・発注管理ツール。',
+    summary:
+      '食品スーパー・飲食店・食品卸などの小〜中規模事業者を対象に、複数拠点の在庫・ロット・賞味期限・入出庫・棚卸・廃棄・発注を一つの画面で管理します。直近需要・安全在庫・入荷予定・賞味期限・廃棄傾向などから、欠品・過剰在庫・廃棄リスクを踏まえた発注数量を提案します。',
+    problem:
+      '複数の店舗・倉庫にまたがる在庫や賞味期限の確認が担当者に依存しやすく、欠品を避けながら過剰発注や廃棄も抑える発注判断に時間がかかります。',
+    solution:
+      '在庫・ロット・入出庫・棚卸・廃棄・発注の履歴を一か所に集約し、需要や入荷予定、期限、廃棄傾向から発注数量を提案することで、発注判断の材料と操作導線を一つにまとめました。',
+    features: [
+      '約1,000 SKUの商品管理（検索・絞り込み・ページング・商品詳細）',
+      '東京・大阪・福岡・札幌の4拠点と40仕入先のサンプルデータ',
+      '拠点別の在庫一覧と、ロット・賞味期限の管理',
+      '入庫・出庫・拠点間移動・棚卸・廃棄の業務操作と入出庫履歴',
+      '仕入先管理と発注書の作成',
+      '欠品・過剰在庫・廃棄リスクを踏まえたAI発注提案と推奨数量',
+      'ダッシュボードでの在庫・期限間近・未着発注などの集計',
+      'ログイン不要で操作できる公開販売デモ',
+    ],
+    safety:
+      '公開しているのは販売用のデモ環境です。商品・仕入先・拠点はすべて架空のサンプルデータです。デモでの登録や入出庫などの操作はそのブラウザ内だけに保持され、共有データは変更されないため、第三者が操作しても他の閲覧者の表示には影響しません。',
+    group: 'Web Applications',
+    projectType: 'Self-directed Project',
+    status: 'released',
+    statusNote:
+      'Vercelで公開中です。ログイン不要で、固定サンプルデータを使った業務画面を操作できます。デモ操作はブラウザ内だけに保持され、Supabaseや外部AI APIには接続しません。',
+    stack: ['Next.js', 'React', 'TypeScript', 'Tailwind CSS', 'Zod', 'Vitest', 'Vercel'],
+    tags: ['食品', '小売', '在庫管理', '発注', 'AI', '業務支援'],
+    colorLabel: 'Next.js / TypeScript / Tailwind CSS / Vercel',
+    accent: '#5fb487',
+    tint: '#08170f',
+    image: '/works/images/ai-food-inventory-manager-card.png',
+    imageAlt: 'AI食品在庫・発注管理のダッシュボード画面',
+    liveUrl: 'https://ai-food-inventory-manager.vercel.app',
+    githubUrl: 'https://github.com/aicmode/ai-food-inventory-manager',
+    showGithubOnCard: true,
+    addedOn: '2026-09-13',
+    order: 1.1,
+    featured: true,
+    year: 2026,
+  },
+  {
     id: 'enterprise-rag-knowledge-ai',
     title: 'Enterprise RAG Knowledge AI',
     subtitle: '社内ナレッジ検索AI',

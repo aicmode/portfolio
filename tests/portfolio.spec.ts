@@ -70,8 +70,9 @@ test.describe('short sales landing page', () => {
     // Every AI / automation piece lives here now — the ones that used to be
     // reachable only from the archive included, since /works is web-only.
     const featured = works.locator('article')
-    await expect(featured).toHaveCount(10)
+    await expect(featured).toHaveCount(11)
     for (const title of [
+      'AI食品在庫・発注管理',
       'Enterprise RAG Knowledge AI',
       'AI工事・リフォーム見積管理システム',
       'MediBrief',
@@ -87,7 +88,8 @@ test.describe('short sales landing page', () => {
     }
     // Newest first, and nothing pinned: MediBrief is the oldest AI piece, so it
     // closes the group rather than opening it.
-    expect((await featured.locator('h4').allTextContents()).slice(0, 9)).toEqual([
+    expect((await featured.locator('h4').allTextContents()).slice(0, 10)).toEqual([
+      'AI食品在庫・発注管理',
       'Enterprise RAG Knowledge AI',
       'AI工事・リフォーム見積管理システム',
       'AI Real Estate Matcher',
@@ -98,6 +100,27 @@ test.describe('short sales landing page', () => {
       'MediChart Lite',
       'MediBrief',
     ])
+
+    const foodInventoryCard = featured.filter({
+      has: page.getByRole('heading', { name: 'AI食品在庫・発注管理', exact: true }),
+    })
+    await expect(foodInventoryCard).toContainText('食品・小売 × AI × 在庫・発注支援')
+    await expect(foodInventoryCard).toContainText(
+      '食品事業者向けに、在庫・ロット・賞味期限・廃棄・発注を一元管理し、在庫状況や需要から発注判断を支援する食品在庫・発注管理ツール。',
+    )
+    await expect(foodInventoryCard).toContainText('自主制作 ・ 公開中')
+    await expect(foodInventoryCard.getByRole('link', { name: '詳細を見る' })).toHaveCount(0)
+    const foodInventoryLiveLink = foodInventoryCard.getByRole('link', { name: /実際に見る/ })
+    await expect(foodInventoryLiveLink).toHaveAttribute('href', 'https://ai-food-inventory-manager.vercel.app')
+    await expect(foodInventoryLiveLink).toHaveAttribute('target', '_blank')
+    await expect(foodInventoryLiveLink).toHaveAttribute('rel', /noopener/)
+    const foodInventoryGithubLink = foodInventoryCard.getByRole('link', { name: /GitHubで見る/ })
+    await expect(foodInventoryGithubLink).toHaveAttribute(
+      'href',
+      'https://github.com/aicmode/ai-food-inventory-manager',
+    )
+    await expect(foodInventoryGithubLink).toHaveAttribute('target', '_blank')
+    await expect(foodInventoryGithubLink).toHaveAttribute('rel', /noopener/)
 
     const enterpriseRagCard = featured.filter({
       has: page.getByRole('heading', { name: 'Enterprise RAG Knowledge AI', exact: true }),
@@ -254,7 +277,7 @@ test.describe('short sales landing page', () => {
     }))
     expect(dimensions.scrollWidth).toBe(dimensions.clientWidth)
     expect(dimensions.height).toBeLessThan(22000)
-    await expect(page.locator('#works article')).toHaveCount(10)
+    await expect(page.locator('#works article')).toHaveCount(11)
 
     await page.getByRole('button', { name: 'メニューを開く' }).click()
     await expect(page.getByRole('link', { name: 'お問い合わせ', exact: true })).toBeVisible()
@@ -293,6 +316,7 @@ test.describe('detail pages retain the removed information', () => {
 
     // None of the AI / automation work is listed here.
     for (const title of [
+      'AI食品在庫・発注管理',
       'Enterprise RAG Knowledge AI',
       'AI工事・リフォーム見積管理システム',
       'MediBrief',

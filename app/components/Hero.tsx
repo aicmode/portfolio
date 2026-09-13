@@ -237,25 +237,6 @@ export default function Hero() {
 
           {/* Left: branding — subtle parallax + fade out on scroll */}
           <motion.div className="text-center lg:text-left" style={{ opacity: contentOpacity, y: contentY }}>
-            {/* The AIC wordmark stays the brand, but it is no longer the first
-                thing read: the sentence below it is what tells a visitor, in
-                one second and without any jargon, what can be asked for here. */}
-            <motion.p
-              className="mb-5 text-[2.4rem] font-black leading-none sm:text-[3rem] md:mb-7 md:text-[3.4rem]"
-              style={{
-                letterSpacing: '0.02em',
-                background: 'linear-gradient(160deg, #ffffff 0%, rgba(255,255,255,0.82) 45%, rgba(200,200,220,0.6) 100%)',
-                WebkitBackgroundClip: 'text',
-                WebkitTextFillColor: 'transparent',
-                backgroundClip: 'text',
-              }}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 1.2, delay: 0.1, ease: [0.22, 1, 0.36, 1] }}
-            >
-              AIC
-            </motion.p>
-
             <motion.p
               className="mb-5 inline-flex items-center gap-3 border-y border-[rgba(212,175,55,0.28)] py-2.5 text-[clamp(1.15rem,2.8vw,1.65rem)] font-bold leading-relaxed tracking-[-0.01em] text-[rgba(232,204,113,0.96)] md:mb-6"
               initial={{ opacity: 0, y: 18 }}

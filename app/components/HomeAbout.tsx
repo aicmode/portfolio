@@ -26,11 +26,11 @@ export default function HomeAbout() {
           <div className="mt-8 grid gap-6 border border-white/[0.08] bg-[#090909] p-5 sm:grid-cols-[11rem_minmax(0,1fr)] sm:p-7 md:grid-cols-[14rem_minmax(0,1fr)] md:items-center lg:grid-cols-[14rem_minmax(0,1fr)_auto]">
             <div className="relative aspect-[16/9] min-h-32 overflow-hidden border border-white/10 sm:aspect-auto sm:min-h-48">
               <Image
-                src="/images/profile/profile-aicmode.jpg"
+                src="/images/profile/profile-kaito.png"
                 alt="AICのプロフィール写真"
                 fill
                 sizes="(max-width: 639px) calc(100vw - 80px), (max-width: 767px) 11rem, 14rem"
-                className="object-cover object-[center_38%] sm:object-center"
+                className="object-contain object-center sm:object-cover"
               />
             </div>
             <div className="space-y-3">

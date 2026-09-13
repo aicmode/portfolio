@@ -36,7 +36,7 @@ export default function HomeAbout() {
             <div className="space-y-3">
               <div className="space-y-1.5">
                 <p className="text-[17px] font-semibold leading-7 tracking-[0.04em] text-white/90">
-                  幸野 魁飛
+                  KAITO
                 </p>
                 <p className="text-[11px] leading-5 tracking-[0.12em] text-white/45 sm:text-[12px]">
                   AI Engineer | Automation Developer

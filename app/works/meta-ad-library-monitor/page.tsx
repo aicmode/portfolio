@@ -10,10 +10,10 @@ import { CATEGORY_LABEL, PROJECT_TYPE_LABEL, STATUS_LABEL } from '../../types/pr
 /**
  * Meta Ad Library Monitor, at full length.
  *
- * Built to the same rules as `/works/meddose`: every fact on this page is read
- * from the same `projects` entry the card and the archive use, so the page and
- * the card can never end up describing different work, and nothing is written
- * twice.
+ * Built to the same data-driven rules as the other project detail pages: every
+ * fact on this page is read from the same `projects` entry the card and the
+ * archive use, so the page and the card can never end up describing different
+ * work, and nothing is written twice.
  *
  * Two things this page must never imply, because neither is true: that the tool
  * is a Meta product or an official API integration, and that there is a running

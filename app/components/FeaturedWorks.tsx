@@ -69,10 +69,6 @@ const AI_CARD_COPY: Record<string, { title?: string; label?: string; description
     label: '介護・医療 × 業務効率化',
     description: '申し送り、記録、予定、検索、印刷を一つにまとめた完全オフライン対応ツールです。',
   },
-  meddose: {
-    label: '医療 × 自動計算',
-    description: '薬をいつまで飲むのか、腕時計の上で自動計算します。',
-  },
   'meta-ad-library-monitor': {
     label: '広告リサーチ × 自動化',
     description: '登録した広告主の広告をまとめて取得し、前回から増えた分だけを見つけ出します。',

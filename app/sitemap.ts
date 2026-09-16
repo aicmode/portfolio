@@ -36,11 +36,6 @@ export default function sitemap(): MetadataRoute.Sitemap {
       priority: 0.8,
     },
     {
-      url: `${SITE_URL}/works/meddose`,
-      changeFrequency: 'yearly',
-      priority: 0.8,
-    },
-    {
       url: `${SITE_URL}/works/meta-ad-library-monitor`,
       changeFrequency: 'yearly',
       priority: 0.8,

@@ -10,7 +10,7 @@ import { CATEGORY_LABEL, PROJECT_TYPE_LABEL, STATUS_LABEL } from '../../types/pr
 /**
  * AI LINE Inquiry Assistant, at full length.
  *
- * Built to the same rules as `/works/meddose` and
+ * Built to the same data-driven rules as
  * `/works/meta-ad-library-monitor`: every fact on this page is read from the
  * same `projects` entry the card uses, so the page and the card can never end
  * up describing different work, and nothing is written twice.

@@ -70,7 +70,7 @@ test.describe('short sales landing page', () => {
     // Every AI / automation piece lives here now — the ones that used to be
     // reachable only from the archive included, since /works is web-only.
     const featured = works.locator('article')
-    await expect(featured).toHaveCount(11)
+    await expect(featured).toHaveCount(10)
     for (const title of [
       'AI食品在庫・発注管理',
       'Enterprise RAG Knowledge AI',
@@ -80,7 +80,6 @@ test.describe('short sales landing page', () => {
       'AI Real Estate Matcher',
       'MediChart Lite',
       'Handover Maker',
-      'MedDose',
       'Meta Ad Library Monitor',
       'Nurse FUKUGYO Lab',
     ]) {
@@ -88,7 +87,7 @@ test.describe('short sales landing page', () => {
     }
     // Newest first, and nothing pinned: MediBrief is the oldest AI piece, so it
     // closes the group rather than opening it.
-    expect((await featured.locator('h4').allTextContents()).slice(0, 10)).toEqual([
+    expect((await featured.locator('h4').allTextContents()).slice(0, 9)).toEqual([
       'AI食品在庫・発注管理',
       'Enterprise RAG Knowledge AI',
       'AI工事・リフォーム見積管理システム',
@@ -96,7 +95,6 @@ test.describe('short sales landing page', () => {
       'AI LINE Inquiry Assistant',
       'Meta Ad Library Monitor',
       'Handover Maker',
-      'MedDose',
       'MediChart Lite',
       'MediBrief',
     ])
@@ -201,7 +199,6 @@ test.describe('short sales landing page', () => {
       'https://aicmode.github.io/NURSE-FUKUGYO-LAB/',
     )
     await expect(page.locator('#works').getByText(/自主制作/).first()).toBeVisible()
-    await expect(page.locator('#works').getByText(/試作品（実機で動作確認済み）/)).toBeVisible()
     // /works is the web gallery, so the only link to it is the web one, and
     // its count is the web count — never the whole portfolio's.
     await expect(page.getByRole('link', { name: 'Web制作の実績を見る（21件）' })).toHaveAttribute(
@@ -277,7 +274,7 @@ test.describe('short sales landing page', () => {
     }))
     expect(dimensions.scrollWidth).toBe(dimensions.clientWidth)
     expect(dimensions.height).toBeLessThan(22000)
-    await expect(page.locator('#works article')).toHaveCount(11)
+    await expect(page.locator('#works article')).toHaveCount(10)
 
     await page.getByRole('button', { name: 'メニューを開く' }).click()
     await expect(page.getByRole('link', { name: 'お問い合わせ', exact: true })).toBeVisible()
@@ -323,7 +320,6 @@ test.describe('detail pages retain the removed information', () => {
       'AI LINE Inquiry Assistant',
       'MediChart Lite',
       'Handover Maker',
-      'MedDose',
       'Meta Ad Library Monitor',
     ]) {
       await expect(page.getByRole('heading', { name: title, exact: true })).toHaveCount(0)
@@ -414,7 +410,6 @@ test.describe('detail pages retain the removed information', () => {
   test('the AI detail pages are still reachable and intact', async ({ page }) => {
     for (const path of [
       '/works/enterprise-rag-knowledge-ai',
-      '/works/meddose',
       '/works/meta-ad-library-monitor',
       '/works/ai-real-estate-matcher',
       '/works/ai-construction-estimate',

@@ -57,8 +57,57 @@ export const projects: readonly Project[] = [
     tint: '#08170f',
     image: '/works/images/ai-food-inventory-manager-card.png',
     imageAlt: 'AI食品在庫・発注管理のダッシュボード画面',
+    overview:
+      'AI食品在庫・発注管理は、食品スーパー・飲食店・食品卸などの小〜中規模事業者を想定した在庫・発注管理システムです。公開版は外部DBを使わない販売デモ（Demo Mode）として動作し、固定シードから生成した1,000商品・4拠点・40仕入先・約12,000ロットの架空データで、ダッシュボード、AI発注提案、入庫・出庫・移動・棚卸・廃棄、発注・仕入先管理までの業務画面を操作できます。同じ画面と業務ロジックのまま、顧客専用のSupabaseへ接続するClient Production Modeにも切り替えられる構成です。',
+    detailSections: [
+      {
+        title: '発注数量は計算で決める',
+        body:
+          '発注数量とリスク判定は、直近7日・30日の出庫実績、曜日別の出庫傾向、安全在庫、発注点、リードタイム、入荷予定、賞味期限、直近30日の廃棄数量、最小発注数量や発注単位などを入力にした純粋関数で計算します。同じ入力からは常に同じ結果になり、欠品・過剰在庫・廃棄リスクの判定理由も合わせて表示します。',
+      },
+      {
+        title: 'AIの役割と公開デモでの扱い',
+        items: [
+          '生成AIは発注提案の「説明文」をつくる役割に限定し、推奨数量は変更しない',
+          '説明文が推奨数量と食い違っていないかを確認するガード処理',
+          'APIキーが未設定の場合は、日本語テンプレートの説明文へ自動で切り替え',
+          '公開デモでは外部AI APIを呼び出さず定型文で説明するため、第三者の操作で利用料金が発生しない',
+        ],
+      },
+      {
+        title: '2つの動作モード',
+        items: [
+          'Demo Mode：Supabase・Docker・APIキー不要で、Vercel単体で動作',
+          'Demo Mode：一覧はサーバー側で検索・絞り込み・ページングし、全履歴をブラウザへ送らない',
+          'Demo Mode：登録や入出庫などの疑似操作は共有データを変更せず、操作履歴はそのブラウザのlocalStorageだけに保持',
+          'Client Production Mode：顧客専用のSupabase PostgreSQLへ接続し、RLSによる組織ごとのデータ分離と、RPC内の単一トランザクションで在庫・発注操作を処理する設計',
+        ],
+      },
+      {
+        title: '在庫データの正確さを守るしくみ',
+        items: [
+          '賞味期限の早いロットから出庫を割り当てるFEFO（First Expired, First Out）',
+          'Client Production Modeでは、FEFO・行ロック・負在庫の防止・発注残の超過防止をデータベース側で保証',
+          'Server ActionsとZodによる入力検証（Demo Modeでも本番と同じ検証を通過）',
+          'Vitestによる在庫ドメイン・発注提案・権限・入力検証・デモデータのユニットテスト',
+        ],
+      },
+    ],
+    galleryNote:
+      '公開中の販売デモのダッシュボード画面です。表示されている店舗名・商品・金額などはすべて架空のサンプルデータです。',
+    gallery: [
+      {
+        src: '/works/images/ai-food-inventory-manager-card.png',
+        alt: 'AI食品在庫・発注管理のダッシュボード画面。総SKU数・総在庫数量・総在庫金額・欠品商品数などの集計カード、30日間の入出庫推移グラフ、緊急・高・中・低に分けた欠品リスクの件数が表示されている',
+        caption:
+          '在庫数量・在庫金額、欠品や過剰在庫の件数、賞味期限間近・期限切れ、30日間の入出庫推移、欠品リスクの内訳を一画面で確認する',
+        width: 1600,
+        height: 1000,
+      },
+    ],
     liveUrl: 'https://ai-food-inventory-manager.vercel.app',
     githubUrl: 'https://github.com/aicmode/ai-food-inventory-manager',
+    detailPath: '/works/ai-food-inventory-manager',
     showGithubOnCard: true,
     addedOn: '2026-09-13',
     order: 1.1,
@@ -691,8 +740,57 @@ export const projects: readonly Project[] = [
     image: '/works/images/medichart-lite-clinical-dashboard.jpg',
     imageAlt: 'MediChart LiteのダークモードDashboard、青とピンクの患者アイコン、バイタル推移グラフ、看護記録タイムライン、内服薬一覧を組み合わせた画面',
     imagePosition: 'center',
+    overview:
+      'MediChart Liteは、看護師経験をもとに制作した架空患者専用の医療・看護記録支援Webアプリです。v2では、患者情報・バイタル・経過記録・SOAP・内服・申し送り・タイムラインを患者単位で統合し、Dashboardから患者詳細の各タブまでを行き来しながら記録を確認できるようにしました。サーバー・データベース・ログイン・有料APIを使わず、データは閲覧しているブラウザのLocal Storageにだけ保存されます。',
+    detailSections: [
+      {
+        title: '画面の構成',
+        items: [
+          'Dashboard：本日の記録件数、未確認の申し送り、要確認リスト、病室ごとの患者表示（Room Board）、患者統計',
+          'Patients：患者ID・氏名検索、病室・性別・疾患・状態での絞り込み、並び替え',
+          'Patient Detail：概要・バイタル・経過記録・SOAP・内服・医療情報・申し送り・タイムラインの8タブ',
+          'New Patient：患者IDの形式・重複チェック、生年月日の妥当性チェック、17種の疾患テンプレート',
+          'Data & Safety：Demo Dataの生成・削除、JSONバックアップ、全データ初期化',
+        ],
+      },
+      {
+        title: '記録支援（AI機能）の位置付け',
+        body:
+          '記録支援は外部送信なし・APIキー不要のローカル規則ベースで動作し、長文記録の要点抜き出し、文章のS・O・A・Pへの振り分け、保存データからの申し送り下書き・患者サマリー下書きを行います。出力は必ず「下書き」として表示し、利用者が確認・編集して保存するまで自動保存しません。処理をインターフェースで分離しているため、画面を変えずに実装を差し替えられる構成です。',
+      },
+      {
+        title: 'データ保存と移行',
+        items: [
+          '保存先はブラウザのLocal Storageのみで、共有データベースを持たない',
+          '保存データを1件ずつ検証し、旧バージョンのデータを現在のデータ構造（schema v4）へ補完・移行',
+          '壊れた保存データでもクラッシュせず、元のデータを退避してから起動',
+          'タイムラインは専用データを持たず、各記録の日時から表示用に生成',
+        ],
+      },
+      {
+        title: '医療安全とアクセシビリティ',
+        items: [
+          '全画面に「実在する患者の情報を入力しない」注意書きを常時表示',
+          '診断・治療・投薬判断の機能は実装せず、バイタルの「デモ閾値外」は固定値との単純比較による参考表示と明記',
+          'WAI-ARIA Tabsパターン、確認ダイアログのフォーカス管理、スキップリンク、prefers-reduced-motionに対応',
+          'バイタル推移グラフ（Recharts）の遅延読み込みと、依存ライブラリなしのハッシュルーター',
+        ],
+      },
+    ],
+    galleryNote:
+      'MediChart Liteの主な画面をまとめたイメージです。表示されている患者名・患者ID・記録はすべて架空のデモデータです。',
+    gallery: [
+      {
+        src: '/works/images/medichart-lite-clinical-dashboard.jpg',
+        alt: 'MediChart LiteのダークモードDashboard。男性・女性の患者数や平均年齢、最新バイタル・最近登録・最近更新の患者一覧と、バイタル推移グラフ、看護記録タイムライン、内服薬一覧が並んでいる',
+        caption: 'Dashboardの患者統計と、バイタル推移グラフ・看護記録タイムライン・内服薬一覧を組み合わせた画面',
+        width: 1600,
+        height: 1000,
+      },
+    ],
     liveUrl: 'https://medichart-lite.vercel.app',
     githubUrl: 'https://github.com/aicmode/medichart-lite',
+    detailPath: '/works/medichart-lite',
     ctaLabel: '実際に見る',
     showGithubOnCard: true,
     addedOn: '2026-08-01',
@@ -756,6 +854,22 @@ export const projects: readonly Project[] = [
           '壊れた保存データを退避し、無言で上書きしない設計',
         ],
       },
+      {
+        title: '人数と内容量に合わせた印刷',
+        body:
+          '印刷はA4横・1ブロック1枚が基本です。日勤／夜勤の記録項目数、申し送りと毎日つづく大事なことの文字量、当日の予定と定期予定から人ごとに必要な高さを見積もり、行高を4段階で配分します。20名満床でも記録欄を勝手に削らず、1枚に安全に収まらない場合だけ同じ文字サイズのまま2枚に分割します。',
+      },
+    ],
+    galleryNote: '公開デモVer2.0の入力画面です。表示されている人物名・部屋番号・記録・予定はすべて架空です。',
+    gallery: [
+      {
+        src: '/works/images/handover-maker-ver2.png',
+        alt: '申し送りメーカーVer2.0の入力画面。Aブロック15/20、Bブロック12/20、Cブロック18/20、Dブロック16/20のタブと、架空データの申し送り・日勤夜勤の記録・予定の入力欄が表示されている',
+        caption:
+          'ブロックを切り替えながら、毎日つづく大事なこと・本日の申し送り・日勤／夜勤の記録・予定を一人ずつ入力する（入力内容は自動保存）',
+        width: 1600,
+        height: 1000,
+      },
     ],
     outcome: [
       'Nodeテスト125件成功',
@@ -782,6 +896,7 @@ export const projects: readonly Project[] = [
     imagePosition: 'center top',
     liveUrl: 'https://aicmode.github.io/offline-handover/',
     githubUrl: 'https://github.com/aicmode/offline-handover',
+    detailPath: '/works/handover-maker',
     ctaLabel: '実際に見る',
     showGithubOnCard: true,
     addedOn: '2026-08-13',

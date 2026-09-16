@@ -108,6 +108,7 @@ function fromCaseStudy(study: CaseStudy): FeaturedWork {
     status: study.status,
     liveUrl: study.liveUrl,
     githubUrl: study.githubUrl,
+    detailPath: study.detailPath,
     addedOn: study.addedOn,
   }
 }

@@ -107,7 +107,10 @@ test.describe('short sales landing page', () => {
       '食品事業者向けに、在庫・ロット・賞味期限・廃棄・発注を一元管理し、在庫状況や需要から発注判断を支援する食品在庫・発注管理ツール。',
     )
     await expect(foodInventoryCard).toContainText('自主制作 ・ 公開中')
-    await expect(foodInventoryCard.getByRole('link', { name: '詳細を見る' })).toHaveCount(0)
+    await expect(foodInventoryCard.getByRole('link', { name: '詳細を見る' })).toHaveAttribute(
+      'href',
+      '/works/ai-food-inventory-manager',
+    )
     const foodInventoryLiveLink = foodInventoryCard.getByRole('link', { name: /実際に見る/ })
     await expect(foodInventoryLiveLink).toHaveAttribute('href', 'https://ai-food-inventory-manager.vercel.app')
     await expect(foodInventoryLiveLink).toHaveAttribute('target', '_blank')
@@ -413,6 +416,10 @@ test.describe('detail pages retain the removed information', () => {
       '/works/meta-ad-library-monitor',
       '/works/ai-real-estate-matcher',
       '/works/ai-construction-estimate',
+      '/works/ai-food-inventory-manager',
+      '/works/medichart-lite',
+      '/works/handover-maker',
+      '/works/medibrief-ai',
     ]) {
       const response = await page.goto(`${BASE_URL}${path}`, { waitUntil: 'networkidle' })
       expect(response?.status()).toBe(200)

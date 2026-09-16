@@ -327,6 +327,8 @@ export type CaseStudy = {
   }
   liveUrl?: string
   githubUrl?: string
+  /** Route of a full detail page inside this site, when the case study has one. */
+  detailPath?: string
   screenshot?: string
   screenshotAlt?: string
   /**

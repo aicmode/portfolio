@@ -86,6 +86,7 @@ export const caseStudies: readonly CaseStudy[] = [
     },
     liveUrl: 'https://medibrief-ai.vercel.app',
     githubUrl: 'https://github.com/aicmode/medibrief-ai',
+    detailPath: '/works/medibrief-ai',
     screenshot: '/works/case-studies/medibrief-ai.png',
     screenshotAlt: 'MediBriefの画面。自由入力から7項目の受診メモが生成されている',
     addedOn: '2026-07-30',

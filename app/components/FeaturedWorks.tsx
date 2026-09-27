@@ -2,7 +2,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 import AnimateIn from './AnimateIn'
 import { caseStudies } from '../data/caseStudies'
-import { aiProjects, projects, webProjectCount } from '../data/projects'
+import { LIVE_LINK_PAUSED, aiProjects, projects, webProjectCount } from '../data/projects'
 import {
   CATEGORY_LABEL,
   PROJECT_TYPE_LABEL,
@@ -87,7 +87,7 @@ function fromProject(project: Project): FeaturedWork {
     accent: project.accent,
     projectType: project.projectType,
     status: project.status,
-    liveUrl: project.liveUrl,
+    liveUrl: LIVE_LINK_PAUSED.has(project.id) ? undefined : project.liveUrl,
     githubUrl: project.githubUrl,
     detailPath: project.detailPath,
     addedOn: project.addedOn,

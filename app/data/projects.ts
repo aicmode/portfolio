@@ -1680,6 +1680,16 @@ export const projects: readonly Project[] = [
   },
 ]
 
+/**
+ * Works whose deployment is down for now. Their 「実際に見る」 is dropped
+ * everywhere it is rendered while `liveUrl` stays in the data, so bringing the
+ * button back is removing the id from this list.
+ */
+export const LIVE_LINK_PAUSED: ReadonlySet<string> = new Set([
+  // Supabase is paused, so the demo cannot load its data.
+  'ai-real-estate-matcher',
+])
+
 /** Selected Works: the highest-priority pieces for a first read. */
 export const selectedProjects = projects
   .filter((project) => project.featured)

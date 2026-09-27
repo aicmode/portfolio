@@ -185,10 +185,8 @@ test.describe('short sales landing page', () => {
       'href',
       '/works/ai-real-estate-matcher',
     )
-    await expect(matcherCard.getByRole('link', { name: /実際に見る/ })).toHaveAttribute(
-      'href',
-      'https://ai-real-estate-matcher.vercel.app',
-    )
+    // The demo is paused while Supabase is down: the card keeps its other links.
+    await expect(matcherCard.getByRole('link', { name: /実際に見る/ })).toHaveCount(0)
     await expect(matcherCard.getByRole('link', { name: /GitHubで見る/ })).toHaveAttribute(
       'href',
       'https://github.com/aicmode/ai-real-estate-matcher',
@@ -505,14 +503,15 @@ test.describe('detail pages retain the removed information', () => {
       await expect(page.getByText('全国47都道府県・架空188物件のSupabase PostgreSQLデータベース', { exact: false })).toBeAttached()
       await expect(page.getByText('業務ロジックを組み合わせた選定フロー')).toBeAttached()
 
-      await expect(page.getByRole('link', { name: /実際に見る/ }).first()).toHaveAttribute(
-        'href',
-        'https://ai-real-estate-matcher.vercel.app',
-      )
-      await expect(page.getByRole('link', { name: /GitHubで見る/ }).first()).toHaveAttribute(
-        'href',
-        'https://github.com/aicmode/ai-real-estate-matcher',
-      )
+      // The demo is paused while Supabase is down: no link may lead to it.
+      await expect(page.getByRole('link', { name: /実際に見る/ })).toHaveCount(0)
+      await expect(page.locator('a[href*="ai-real-estate-matcher.vercel.app"]')).toHaveCount(0)
+      const githubLinks = page.getByRole('link', { name: /GitHubで見る/ })
+      await expect(githubLinks).toHaveCount(2)
+      for (const githubLink of await githubLinks.all()) {
+        await expect(githubLink).toHaveAttribute('href', 'https://github.com/aicmode/ai-real-estate-matcher')
+      }
+      await expect(page.getByRole('link', { name: '似たものを相談する' })).toHaveAttribute('href', '/#contact')
       await expect(page.locator('img')).toHaveCount(2)
 
       const dimensions = await page.evaluate(() => ({

@@ -4,7 +4,7 @@ import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import AnimateIn from '../../components/AnimateIn'
 import Footer from '../../components/Footer'
-import { projects } from '../../data/projects'
+import { LIVE_LINK_PAUSED, projects } from '../../data/projects'
 import { PROJECT_TYPE_LABEL, STATUS_LABEL } from '../../types/project'
 
 const PROJECT_ID = 'ai-real-estate-matcher'
@@ -73,6 +73,8 @@ export default function AiRealEstateMatcherPage() {
   if (!project) notFound()
 
   const { accent, detailSections, gallery, outcome, role, safety, statusNote } = project
+  // The demo link is withheld while the deployment is paused; `liveUrl` stays in the data.
+  const liveUrl = LIVE_LINK_PAUSED.has(project.id) ? undefined : project.liveUrl
   const jsonLd = {
     '@context': 'https://schema.org',
     '@type': 'SoftwareApplication',
@@ -150,9 +152,9 @@ export default function AiRealEstateMatcherPage() {
             ) : null}
 
             <div className="mt-9 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
-              {project.liveUrl ? (
+              {liveUrl ? (
                 <a
-                  href={project.liveUrl}
+                  href={liveUrl}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="inline-flex w-full items-center justify-center gap-2.5 border border-white/16 px-6 py-4 text-[13px] font-semibold tracking-[0.08em] text-white/78 transition duration-500 hover:border-white/38 hover:text-white sm:w-auto"
@@ -347,9 +349,9 @@ export default function AiRealEstateMatcherPage() {
                 自分で企画・制作したツールです。公開デモでは架空の物件データを使用しています。
               </p>
               <div className="flex flex-col gap-3 sm:flex-row">
-                {project.liveUrl ? (
+                {liveUrl ? (
                   <a
-                    href={project.liveUrl}
+                    href={liveUrl}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="inline-flex w-full items-center justify-center gap-2 border border-white/14 px-6 py-4 text-[13px] font-semibold tracking-[0.08em] text-white/70 transition duration-500 hover:border-white/32 hover:text-white sm:w-auto"

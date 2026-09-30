@@ -6,6 +6,7 @@ import AnimateIn from '../../components/AnimateIn'
 import Footer from '../../components/Footer'
 import { projects } from '../../data/projects'
 import { PROJECT_TYPE_LABEL, STATUS_LABEL } from '../../types/project'
+import { openGraphImages, twitterImages } from '../../shared-metadata'
 
 const PROJECT_ID = 'ai-construction-estimate'
 const SITE_URL = 'https://aicmode-portfolio.vercel.app'
@@ -28,8 +29,9 @@ export const metadata: Metadata = {
     locale: 'ja_JP',
     title,
     description,
+    ...openGraphImages,
   },
-  twitter: { card: 'summary_large_image', title, description },
+  twitter: { card: 'summary_large_image', title, description, ...twitterImages },
   robots: { index: true, follow: true },
 }
 

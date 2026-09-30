@@ -20,9 +20,11 @@ const geistMono = Geist_Mono({
 
 const SITE_URL = "https://aicmode-portfolio.vercel.app";
 
-const title = "AIC｜AIシステム開発・業務自動化・API連携で、面倒な仕事をラクにします。";
+// The region leads because it is the one fact a searcher cannot infer from the
+// services alone; the brand's tagline stays in the h1 and the description.
+const title = "鹿児島拠点のAIシステム開発・業務自動化・API連携｜AIC";
 const description =
-  "AIシステム開発・業務自動化・API連携を行うAICのポートフォリオです。毎日の繰り返し作業、情報整理、問い合わせ対応など、時間のかかる仕事をAIやシステムを使って効率化します。看護師として約9年間働いた経験を活かし、医療・介護分野の業務改善にも対応できます。鹿児島を拠点に活動しています。";
+  "鹿児島を拠点に、AIシステム開発・業務自動化・API連携を行うAIC（KAITO）のポートフォリオです。毎日の繰り返し作業、情報整理、問い合わせ対応など、時間のかかる仕事をAIやシステムを使って効率化します。看護師として約9年間働いた経験を活かし、医療・介護分野の業務改善にも対応できます。";
 
 export const metadata: Metadata = {
   // Required for relative OG / canonical URLs to resolve to absolute ones.

@@ -63,15 +63,18 @@ const jsonLd = {
       alternateName: "KAITO",
       url: SITE_URL,
       image: `${SITE_URL}/images/profile/profile-kaito.png`,
-      jobTitle: "AI・システム開発",
+      // Exactly the label printed under the name in the About section. Nursing
+      // is past experience, so it lives in `description`, not in `jobTitle`.
+      jobTitle: ["AI Engineer", "Automation Developer"],
       description:
-        "看護師として約9年間働いた経験を生かし、業務の自動化、AIを使ったツール、仕事用のWebアプリを、相談から公開まで一人で担当します。",
+        "鹿児島を拠点に、業務の自動化、AIを使ったツール、仕事用のWebアプリを、相談から公開まで一人で担当します。看護師として約9年間働いた経験を生かし、医療・介護分野の業務改善にも対応します。",
       knowsAbout: [
         "AI Systems Development",
         "Business Automation",
         "Workflow Automation",
         "Web Application Development",
         "API Integration",
+        "Healthcare and Long-term Care Workflow Improvement",
         "Retrieval-Augmented Generation (RAG)",
         "Vector Search",
         "OCR",
@@ -115,9 +118,14 @@ const jsonLd = {
       "@id": `${SITE_URL}/#service`,
       name: "AIC",
       description:
-        "面倒な仕事の自動化、AIを使ったツールの制作、仕事に合わせたWebアプリの開発、医療・介護分野の業務改善、ホームページ制作を行います。",
+        "鹿児島を拠点に、面倒な仕事の自動化、AIを使ったツールの制作、仕事に合わせたWebアプリの開発、今お使いのサービスとのAPI連携、医療・介護分野の業務改善、ホームページ制作を行います。",
       url: SITE_URL,
-      areaServed: "JP",
+      // Where the practice is based, plus the country it takes work from
+      // online. A region only: there is no public address, so none is given.
+      areaServed: [
+        { "@type": "AdministrativeArea", name: "鹿児島県" },
+        { "@type": "Country", name: "日本" },
+      ],
       availableLanguage: ["ja", "en"],
       provider: { "@id": `${SITE_URL}/#aicmode` },
       hasOfferCatalog: {

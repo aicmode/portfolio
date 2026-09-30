@@ -1,6 +1,8 @@
 'use client'
 
+import Link from 'next/link'
 import AnimateIn from './AnimateIn'
+import { healthcareWorks } from '../data/healthcareWorks'
 
 const healthcarePoints = [
   {
@@ -60,8 +62,8 @@ export default function HealthcareAI() {
 
             <div className="space-y-5 self-end text-[15px] leading-8 text-white/68 md:text-[16px]">
               <p>
-                看護師として約9年間働いてきた経験を活かし、現場の仕事を理解したうえで、
-                業務を楽にする仕組みを提案します。
+                看護師として約9年間働いてきた経験を活かし、記録や申し送り、情報共有など現場の仕事を理解したうえで、
+                忙しいときでも迷わず使える画面と、業務を楽にする仕組みを提案します。
               </p>
               <p className="text-white/55">
                 「AIを入れること」自体は目的にしません。安全に使えるか、個人情報は大丈夫か、
@@ -91,6 +93,39 @@ export default function HealthcareAI() {
             作りはじめる前に一緒に決めます。
           </p>
         </AnimateIn>
+
+        <div className="mt-20 md:mt-28">
+          <AnimateIn>
+            <p className="mb-5 text-[12px] tracking-[0.24em] text-[#74cfc2]">制作物</p>
+            <h2 className="text-[clamp(1.6rem,3.4vw,2.6rem)] font-black leading-[1.3] tracking-[-0.02em] text-white">
+              医療・介護に関わる制作物
+            </h2>
+            <p className="mt-5 max-w-3xl text-[14px] leading-8 text-white/58 md:text-[15px]">
+              看護記録や申し送りなど、現場で見てきた仕事をもとに作ったツールと、受診の準備を助けるツールです。いずれも自分で企画・制作したもので、医療機関や施設から依頼を受けたものではありません。診断や治療の判断は行いません。
+            </p>
+          </AnimateIn>
+
+          <div className="mt-10 grid grid-cols-1 gap-x-10 md:grid-cols-3">
+            {healthcareWorks.map((work, index) => (
+              <AnimateIn key={work.id} delay={100 + index * 80}>
+                <Link
+                  href={work.detailPath}
+                  className="group flex h-full flex-col border-t border-white/[0.09] py-6 transition hover:border-[#74cfc2]/40"
+                >
+                  <p className="text-[11px] tracking-[0.14em] text-[#74cfc2]/80">{work.subtitle}</p>
+                  <h3 className="mt-3 text-[16px] font-semibold leading-7 tracking-[0.02em] text-white/88">
+                    {work.title}
+                  </h3>
+                  <p className="mt-3 flex-1 text-[13.5px] leading-7 text-white/58">{work.plainSummary}</p>
+                  <span className="mt-5 inline-flex items-center gap-2 text-[12px] font-semibold tracking-[0.08em] text-[#9eddd4] transition group-hover:text-white">
+                    詳しく見る
+                    <span aria-hidden="true">→</span>
+                  </span>
+                </Link>
+              </AnimateIn>
+            ))}
+          </div>
+        </div>
       </div>
     </section>
   )

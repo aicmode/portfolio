@@ -8,9 +8,9 @@ import { openGraphImages, twitterImages } from '../shared-metadata'
 
 const SITE_URL = 'https://aicmode-portfolio.vercel.app'
 
-const title = '自己紹介・スキル｜AIC'
+const title = 'KAITOの自己紹介・スキル｜看護師経験を活かしたAIシステム開発｜AIC'
 const description =
-  'AICの詳しい自己紹介、得意なこと、制作で大切にしていること、技術・スキルをご紹介します。'
+  'AICのKAITOは、鹿児島を拠点にAIシステム開発・業務自動化・API連携を行っています。看護師として約9年間働いた経験、得意なこと、制作で大切にしていること、技術・スキルをご紹介します。'
 
 export const metadata: Metadata = {
   title,
@@ -50,7 +50,7 @@ const profileJsonLd = {
     name: 'AIC',
     alternateName: 'KAITO',
     url: SITE_URL,
-    jobTitle: 'AI・システム開発',
+    jobTitle: ['AI Engineer', 'Automation Developer'],
     sameAs: ['https://github.com/aicmode'],
   },
 }
@@ -66,7 +66,7 @@ export default function AboutPage() {
         <DetailPageHeader
           eyebrow="自己紹介・スキル"
           title="現場で使い続けられるものを作ります。"
-          description="看護師としての経験、得意なこと、制作で大切にしていること、これまで使ってきた技術をまとめています。"
+          description="AICのKAITOです。看護師として約9年間働いた経験、得意なこと、制作で大切にしていること、これまで使ってきた技術をまとめています。"
         />
         <About />
         <Trust />

@@ -9,8 +9,8 @@
  *     the concrete thing that gets handed over.
  *
  * Nothing here claims a capability that isn't backed by a public repository
- * (see `caseStudies.ts` and `projects.ts`). RAG / vector search is intentionally
- * absent: there is no implementation to point at yet.
+ * (see `caseStudies.ts` and `projects.ts`). RAG / vector search is backed by
+ * `enterprise-rag-knowledge-ai` in `projects.ts`.
  */
 
 /** The three things a visitor should remember, in the words they already use. */

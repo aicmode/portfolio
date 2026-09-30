@@ -32,7 +32,7 @@ test.describe('short sales landing page', () => {
     await page.setViewportSize({ width: 1440, height: 900 })
     await page.goto(`${BASE_URL}/`, { waitUntil: 'networkidle' })
 
-    await expect(page).toHaveTitle('AIC｜AIシステム開発・業務自動化・API連携で、面倒な仕事をラクにします。')
+    await expect(page).toHaveTitle('鹿児島拠点のAIシステム開発・業務自動化・API連携｜AIC')
     const sectionIds = await page.locator('main#main > section').evaluateAll((sections) =>
       sections.map((section) => section.id),
     )
@@ -300,6 +300,9 @@ test.describe('detail pages retain the removed information', () => {
     await page.goto(`${BASE_URL}/healthcare`)
     for (const text of ['現場の流れが分かります', '医療の言葉が分かります', '安全を最優先にします', '先に確認してから作ります']) {
       await expect(page.getByText(text)).toBeVisible()
+    }
+    for (const path of ['/works/handover-maker', '/works/medichart-lite', '/works/medibrief-ai']) {
+      await expect(page.locator(`#healthcare a[href="${path}"]`)).toHaveCount(1)
     }
   })
 
@@ -617,9 +620,9 @@ test.describe('detail pages retain the removed information', () => {
     expect(failedRequests).toEqual([])
   })
 
-  test('FAQ retains all ten answers', async ({ page }) => {
+  test('FAQ retains all twelve answers', async ({ page }) => {
     await page.goto(`${BASE_URL}/faq`)
-    await expect(page.locator('#faq h3')).toHaveCount(10)
+    await expect(page.locator('#faq h3')).toHaveCount(12)
     await expect(page.getByText('何を作るか決まっていなくても相談できますか？')).toBeVisible()
   })
 

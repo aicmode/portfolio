@@ -1,4 +1,4 @@
-// Shared between the FAQ accordion and the FAQPage JSON-LD in app/page.tsx,
+// Shared between the FAQ accordion and the FAQPage JSON-LD in app/faq/page.tsx,
 // so the structured data can never drift from what the page actually shows.
 export type Faq = {
   no: string
@@ -66,5 +66,17 @@ export const faqs: Faq[] = [
     question: '制作期間や費用はどのように決まりますか？',
     answer:
       '機能の数、つなぐサービスの数、扱う情報の種類、運用の複雑さで変わります。まずお話をうかがい、最初に作る範囲を決めたうえで、その範囲の期間と費用をお見積りします。中身を確認せずに金額だけをお伝えすることはしません。',
+  },
+  {
+    no: '11',
+    question: '医療・介護の仕事についても相談できますか？',
+    answer:
+      'できます。看護師として約9年間働いた経験があるので、記録や申し送り、情報共有など、現場の仕事の流れを前提にお話を伺えます。申し送りや看護記録を扱うツールも、自分で企画・制作しています。ただし、診断や治療の判断をするシステムは作りません。個人情報の扱い、誰が使うか、人が確認する手順を先に決めてから作ります。',
+  },
+  {
+    no: '12',
+    question: 'どこを拠点に活動していますか？',
+    answer:
+      '鹿児島を拠点に活動しています。ご相談はオンラインでも対応できます。',
   },
 ]

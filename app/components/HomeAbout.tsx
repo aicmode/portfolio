@@ -46,7 +46,7 @@ export default function HomeAbout() {
                 看護師として約9年間勤務した経験を活かし、仕事の困りごとを整理して、AIやWebアプリで解決します。
               </p>
               <p className="text-[14px] leading-7 text-white/52">
-                ご相談から制作、公開まで一人で担当します。
+                鹿児島を拠点に、ご相談から制作、公開まで一人で担当します。オンラインでも対応できます。
               </p>
             </div>
             <Link

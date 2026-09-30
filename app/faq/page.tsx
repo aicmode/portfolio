@@ -9,7 +9,7 @@ const SITE_URL = 'https://aicmode-portfolio.vercel.app'
 
 const title = 'よくある質問｜AIC'
 const description =
-  'AI・自動化・Webアプリ制作のご相談前によくいただく質問をまとめています。'
+  'AI・自動化・API連携・Webアプリ制作のご相談前によくいただく質問と、医療・介護分野のご相談や活動拠点についての回答をまとめています。'
 
 export const metadata: Metadata = {
   title,

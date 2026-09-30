@@ -1,4 +1,5 @@
 'use client'
+import Link from 'next/link'
 import AnimateIn from './AnimateIn'
 import { caseStudies } from '../data/caseStudies'
 import { projects } from '../data/projects'
@@ -135,13 +136,20 @@ export default function About() {
             <div className="space-y-8 md:space-y-10">
               <div className="space-y-4">
                 <p className="text-[15px] leading-8 md:text-[17px]" style={{ color: '#c0c0c0' }}>
-                  仕事の困りごとを整理して、AIや自動化、Webアプリで解決します。
+                  鹿児島を拠点に、仕事の困りごとを整理して、AIや自動化、Webアプリで解決します。
                   相談から公開まで、すべて一人で担当します。
                 </p>
                 <p className="text-[14px] leading-8 md:text-[15px]" style={{ color: '#7a7a7a' }}>
                   看護師として約9年間、現場で働いてきました。医療・介護の分野では、
                   言葉が通じるだけでなく、実際に使う人の負担まで考えて提案できます。
                 </p>
+                <Link
+                  href="/healthcare"
+                  className="inline-flex items-center gap-2 text-[13px] tracking-[0.04em] text-[#9eddd4] underline-offset-4 transition hover:text-white hover:underline"
+                >
+                  医療・介護での考え方と制作物を見る
+                  <span aria-hidden="true">→</span>
+                </Link>
                 <p className="text-[14px] leading-8 md:text-[15px]" style={{ color: '#7a7a7a' }}>
                   音楽や映画が好きで、見せ方や雰囲気を作るのも得意です。
                   「ちゃんと動く」だけでなく「よく見える」ところまで対応します。

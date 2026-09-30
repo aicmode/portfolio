@@ -345,9 +345,18 @@ export default function HandoverMakerPage() {
 
           <AnimateIn delay={80}>
             <div className="mt-20 flex flex-col gap-6 border-t border-white/[0.08] pt-8 md:mt-28 lg:flex-row lg:items-center lg:justify-between">
-              <p className="max-w-xl text-[11.5px] leading-6 tracking-[0.04em] text-white/55">
-                自分で企画・制作したツールです。公開デモの人物名・部屋番号・記録・予定はすべて架空で、入力内容は表示中のブラウザ内だけに保存されます。
-              </p>
+              <div className="max-w-xl">
+                <p className="text-[11.5px] leading-6 tracking-[0.04em] text-white/55">
+                  自分で企画・制作したツールです。公開デモの人物名・部屋番号・記録・予定はすべて架空で、入力内容は表示中のブラウザ内だけに保存されます。
+                </p>
+                <Link
+                  href="/healthcare"
+                  className="mt-3 inline-flex items-center gap-2 text-[12px] tracking-[0.06em] text-white/60 underline-offset-4 transition hover:text-white hover:underline"
+                >
+                  医療・介護分野での考え方を見る
+                  <span aria-hidden="true">→</span>
+                </Link>
+              </div>
               <div className="flex flex-col gap-3 sm:flex-row">
                 {project.liveUrl ? (
                   <a

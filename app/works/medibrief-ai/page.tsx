@@ -7,6 +7,7 @@ import Footer from '../../components/Footer'
 import { caseStudies } from '../../data/caseStudies'
 import { CATEGORY_LABEL, PROJECT_TYPE_LABEL, STATUS_LABEL } from '../../types/project'
 import type { ProjectDetailSection } from '../../types/project'
+import { openGraphImages, twitterImages } from '../../shared-metadata'
 
 /**
  * MediBrief, at full length.
@@ -107,8 +108,9 @@ export const metadata: Metadata = {
     locale: 'ja_JP',
     title,
     description,
+    ...openGraphImages,
   },
-  twitter: { card: 'summary_large_image', title, description },
+  twitter: { card: 'summary_large_image', title, description, ...twitterImages },
   robots: { index: true, follow: true },
 }
 

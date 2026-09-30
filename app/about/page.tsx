@@ -4,16 +4,64 @@ import DetailPageHeader from '../components/DetailPageHeader'
 import Footer from '../components/Footer'
 import Skills from '../components/Skills'
 import Trust from '../components/Trust'
+import { openGraphImages, twitterImages } from '../shared-metadata'
+
+const SITE_URL = 'https://aicmode-portfolio.vercel.app'
+
+const title = '自己紹介・スキル｜AIC'
+const description =
+  'AICの詳しい自己紹介、得意なこと、制作で大切にしていること、技術・スキルをご紹介します。'
 
 export const metadata: Metadata = {
-  title: '自己紹介・スキル｜AIC',
-  description: 'AICの詳しい自己紹介、得意なこと、制作で大切にしていること、技術・スキルをご紹介します。',
+  title,
+  description,
   alternates: { canonical: '/about' },
+  // Declared per page: metadata merges shallowly, so a page without its own
+  // openGraph / twitter would share the home page's title and og:url.
+  openGraph: {
+    type: 'website',
+    url: '/about',
+    siteName: 'AIC',
+    locale: 'ja_JP',
+    title,
+    description,
+    ...openGraphImages,
+  },
+  twitter: { card: 'summary_large_image', title, description, ...twitterImages },
+}
+
+/**
+ * This page is the profile of one person, so it is a ProfilePage. The Person
+ * reuses the home page's `@id`, so both pages describe the same entity; only
+ * what this site already states about them is repeated here.
+ */
+const profileJsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'ProfilePage',
+  '@id': `${SITE_URL}/about#profile`,
+  url: `${SITE_URL}/about`,
+  name: title,
+  description,
+  inLanguage: 'ja-JP',
+  isPartOf: { '@id': `${SITE_URL}/#website` },
+  mainEntity: {
+    '@type': 'Person',
+    '@id': `${SITE_URL}/#aicmode`,
+    name: 'AIC',
+    alternateName: 'KAITO',
+    url: SITE_URL,
+    jobTitle: 'AI・システム開発',
+    sameAs: ['https://github.com/aicmode'],
+  },
 }
 
 export default function AboutPage() {
   return (
     <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(profileJsonLd).replace(/</g, '\\u003c') }}
+      />
       <main id="main">
         <DetailPageHeader
           eyebrow="自己紹介・スキル"

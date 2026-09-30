@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import Nav from "./components/Nav";
 import Hero from "./components/Hero";
 import HomeServices from "./components/HomeServices";
@@ -8,10 +9,26 @@ import HomeContact from "./components/HomeContact";
 import Footer from "./components/Footer";
 import { services } from "./data/services";
 import { caseStudies } from "./data/caseStudies";
-import { projects } from "./data/projects";
+import { LIVE_LINK_PAUSED, projects } from "./data/projects";
 
 const SITE_URL = "https://aicmode-portfolio.vercel.app";
 const GITHUB_URL = "https://github.com/aicmode";
+
+export const metadata: Metadata = {
+  alternates: { canonical: "/" },
+};
+
+/**
+ * A portfolio piece's links for JSON-LD: its own page on this site when it has
+ * one, with the external demo as `sameAs` — the same shape the detail pages
+ * emit. Pieces without a page fall back to the demo itself.
+ */
+function workLinks(detailPath?: string, liveUrl?: string) {
+  if (detailPath) {
+    return { url: `${SITE_URL}${detailPath}`, ...(liveUrl ? { sameAs: liveUrl } : {}) };
+  }
+  return liveUrl ? { url: liveUrl } : {};
+}
 
 /**
  * Structured data, built from the same arrays the page renders, so the two can
@@ -42,7 +59,10 @@ const jsonLd = {
       "@type": "Person",
       "@id": `${SITE_URL}/#aicmode`,
       name: "AIC",
+      // The name shown next to the profile photo in the About section.
+      alternateName: "KAITO",
       url: SITE_URL,
+      image: `${SITE_URL}/images/profile/profile-kaito.png`,
       jobTitle: "AI・システム開発",
       description:
         "看護師として約9年間働いた経験を生かし、業務の自動化、AIを使ったツール、仕事用のWebアプリを、相談から公開まで一人で担当します。",
@@ -52,6 +72,9 @@ const jsonLd = {
         "Workflow Automation",
         "Web Application Development",
         "API Integration",
+        "Retrieval-Augmented Generation (RAG)",
+        "Vector Search",
+        "OCR",
         "Prompt Engineering",
         "Dashboard Development",
         "Web Design",
@@ -68,7 +91,10 @@ const jsonLd = {
         "Node.js",
         "Express",
         "REST API",
+        "PostgreSQL",
+        "pgvector",
         "OpenAI API",
+        "OpenAI Embeddings",
         "Whisper API",
         "Dify API",
         "Google APIs",
@@ -128,7 +154,7 @@ const jsonLd = {
           description: study.solution,
           creator: { "@id": `${SITE_URL}/#aicmode` },
           keywords: study.stack.join(", "),
-          ...(study.liveUrl ? { url: study.liveUrl } : {}),
+          ...workLinks(study.detailPath, study.liveUrl),
           ...(study.githubUrl ? { codeRepository: study.githubUrl } : {}),
         },
       })),
@@ -147,7 +173,11 @@ const jsonLd = {
           description: project.summary,
           creator: { "@id": `${SITE_URL}/#aicmode` },
           keywords: project.stack.join(", "),
-          ...(project.liveUrl ? { url: project.liveUrl } : {}),
+          // A paused demo is withheld here exactly as it is on the page.
+          ...workLinks(
+            project.detailPath,
+            LIVE_LINK_PAUSED.has(project.id) ? undefined : project.liveUrl,
+          ),
           ...(project.githubUrl ? { codeRepository: project.githubUrl } : {}),
         },
       })),

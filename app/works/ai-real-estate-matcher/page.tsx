@@ -6,6 +6,7 @@ import AnimateIn from '../../components/AnimateIn'
 import Footer from '../../components/Footer'
 import { LIVE_LINK_PAUSED, projects } from '../../data/projects'
 import { PROJECT_TYPE_LABEL, STATUS_LABEL } from '../../types/project'
+import { openGraphImages, twitterImages } from '../../shared-metadata'
 
 const PROJECT_ID = 'ai-real-estate-matcher'
 const SITE_URL = 'https://aicmode-portfolio.vercel.app'
@@ -28,8 +29,9 @@ export const metadata: Metadata = {
     locale: 'ja_JP',
     title,
     description,
+    ...openGraphImages,
   },
-  twitter: { card: 'summary_large_image', title, description },
+  twitter: { card: 'summary_large_image', title, description, ...twitterImages },
   robots: { index: true, follow: true },
 }
 
@@ -87,7 +89,7 @@ export default function AiRealEstateMatcherPage() {
     inLanguage: 'ja-JP',
     creator: { '@id': `${SITE_URL}/#aicmode` },
     keywords: project.stack.join(', '),
-    ...(project.liveUrl ? { sameAs: project.liveUrl } : {}),
+    ...(liveUrl ? { sameAs: liveUrl } : {}),
     ...(project.githubUrl ? { codeRepository: project.githubUrl } : {}),
   }
 

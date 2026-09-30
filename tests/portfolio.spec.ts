@@ -32,7 +32,7 @@ test.describe('short sales landing page', () => {
     await page.setViewportSize({ width: 1440, height: 900 })
     await page.goto(`${BASE_URL}/`, { waitUntil: 'networkidle' })
 
-    await expect(page).toHaveTitle('AIC｜AIを使って、面倒な仕事をラクにします。')
+    await expect(page).toHaveTitle('AIC｜AIシステム開発・業務自動化・API連携で、面倒な仕事をラクにします。')
     const sectionIds = await page.locator('main#main > section').evaluateAll((sections) =>
       sections.map((section) => section.id),
     )

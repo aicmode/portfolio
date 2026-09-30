@@ -3,12 +3,29 @@ import DetailPageHeader from '../components/DetailPageHeader'
 import Footer from '../components/Footer'
 import WorksArchive from '../components/WorksArchive'
 import { webProjectCount } from '../data/projects'
+import { openGraphImages, twitterImages } from '../shared-metadata'
+
+const title = 'Web制作実績｜AIC'
+// Counted from the data, so the copy can never fall behind the gallery.
+const description =
+  `これまでに制作したホームページ・1ページの紹介サイト・ネットショップなど、Web制作実績${webProjectCount}件をご覧いただけます。`
 
 export const metadata: Metadata = {
-  title: 'Web制作実績｜AIC',
-  // Counted from the data, so the copy can never fall behind the gallery.
-  description: `これまでに制作したホームページ・1ページの紹介サイト・ネットショップなど、Web制作実績${webProjectCount}件をご覧いただけます。`,
+  title,
+  description,
   alternates: { canonical: '/works' },
+  // Declared per page: metadata merges shallowly, so a page without its own
+  // openGraph / twitter would share the home page's title and og:url.
+  openGraph: {
+    type: 'website',
+    url: '/works',
+    siteName: 'AIC',
+    locale: 'ja_JP',
+    title,
+    description,
+    ...openGraphImages,
+  },
+  twitter: { card: 'summary_large_image', title, description, ...twitterImages },
 }
 
 /**

@@ -285,8 +285,11 @@ test.describe('short sales landing page', () => {
     await expect(line).toHaveAttribute('href', 'https://line.me/R/ti/p/@862povmk')
     await expect(line).toHaveAttribute('target', '_blank')
     await expect(line).toHaveAttribute('rel', /noopener/)
-    const github = page.getByRole('link', { name: /GitHubで制作内容を見る/ })
-    await expect(github).toHaveAttribute('href', 'https://github.com/aicmode')
+    const x = page.locator('#contact').getByRole('link', { name: 'X（@kaito_ns_ai）を新しいタブで開く' })
+    await expect(x).toHaveAttribute('href', 'https://x.com/kaito_ns_ai')
+    await expect(x).toHaveAttribute('target', '_blank')
+    await expect(x).toHaveAttribute('rel', 'noopener noreferrer')
+    await expect(page.locator('#contact a[href*="github.com"]')).toHaveCount(0)
 
     await expect(page.getByText('お困りごとから探す')).toHaveCount(0)
     await expect(page.getByText('お渡しできるもの')).toHaveCount(0)

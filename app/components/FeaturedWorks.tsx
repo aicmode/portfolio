@@ -21,8 +21,9 @@ type FeaturedWork = {
   label: string
   description: string
   accent: string
-  projectType: ProjectType
-  status: ProjectStatus
+  projectType: ProjectType | 'Client Work'
+  status: ProjectStatus | 'delivered'
+  scope?: readonly string[]
   image?: string
   imageAlt?: string
   liveUrl?: string
@@ -165,9 +166,22 @@ const webWorks: readonly FeaturedWork[] = [
   },
 ] as const
 
+const clientWork: FeaturedWork = {
+  id: 'spreadsheet-automation',
+  title: 'Googleスプレッドシート連携 業務自動化ツール',
+  label: '業務自動化 × Google Spreadsheet',
+  description: 'Googleスプレッドシートを活用した業務自動化ツールを設計・開発。要件整理から自動送信フローの構築、設計資料作成まで対応し、実際の業務で利用するツールとして納品しました。',
+  accent: '#d4af37',
+  projectType: 'Client Work',
+  status: 'delivered',
+  scope: ['要件整理', '業務フロー設計', 'Googleスプレッドシート連携', '自動送信フロー構築', '設計資料作成', '納品'],
+}
+
 /** One featured card. Identical treatment in both groups: the hierarchy is
     carried by the headings and the order, never by the card design. */
 function WorkCard({ work, delay }: { work: FeaturedWork; delay: number }) {
+  const isClientWork = work.projectType === 'Client Work'
+  const Heading = isClientWork ? 'h3' : 'h4'
   return (
     <AnimateIn delay={delay}>
       <article className="group flex h-full flex-col overflow-hidden border border-white/[0.09] bg-white/[0.018]">
@@ -181,7 +195,7 @@ function WorkCard({ work, delay }: { work: FeaturedWork; delay: number }) {
               className="object-cover object-top transition duration-700 group-hover:scale-[1.025]"
             />
           </div>
-        ) : (
+        ) : isClientWork ? null : (
           /* No capture exists for this one. The frame keeps the grid even and
              names the work rather than standing in for a screenshot it does
              not have. */
@@ -198,16 +212,41 @@ function WorkCard({ work, delay }: { work: FeaturedWork; delay: number }) {
             </span>
           </div>
         )}
-        <div className="flex flex-1 flex-col p-6">
+        <div className="flex min-w-0 flex-1 flex-col p-6">
           <p className="text-[10px] font-semibold tracking-[0.14em]" style={{ color: work.accent }}>
             {work.label}
           </p>
-          <h4 className="mt-3 text-xl font-semibold leading-7 text-white">{work.title}</h4>
+          <Heading className="mt-3 text-xl font-semibold leading-7 text-white">{work.title}</Heading>
           <p className="mt-4 text-[14px] leading-7 text-white/60">{work.description}</p>
           <p className="mt-4 text-[10px] leading-5 tracking-[0.08em] text-white/38">
-            {PROJECT_TYPE_LABEL[work.projectType]} ・ {STATUS_LABEL[work.status]}
+            {work.projectType === 'Client Work' ? 'Client Work ・ 有償案件' : PROJECT_TYPE_LABEL[work.projectType]} ・ {work.status === 'delivered' ? '納品済み' : STATUS_LABEL[work.status]}
           </p>
-          <div className="mt-auto flex flex-wrap gap-2 pt-6">
+          {isClientWork ? (
+            <figure className="mt-6 min-w-0">
+              <div className="overflow-hidden border border-white/[0.08] bg-[#080808]">
+                <Image
+                  src="/works/images/spreadsheet-automation-client-work.webp"
+                  alt="Googleスプレッドシート連携業務自動化ツールのイメージ。表形式データから自動処理、送信完了へ進む架空UI"
+                  width={1536}
+                  height={864}
+                  sizes="(min-width: 1376px) 1232px, (min-width: 768px) calc(100vw - 144px), calc(100vw - 88px)"
+                  className="h-auto w-full"
+                />
+              </div>
+              <figcaption className="mt-3 text-[10px] leading-5 tracking-[0.08em] text-white/40">
+                CONCEPT IMAGE · 制作した仕組みを表現した架空のイメージです。
+              </figcaption>
+            </figure>
+          ) : null}
+          {work.scope ? (
+            <div className="mt-6 border-t border-white/[0.08] pt-5">
+              <p className="text-[11px] font-semibold tracking-[0.08em] text-white/60">対応内容</p>
+              <ul className="mt-3 flex flex-wrap gap-x-4 gap-y-2 text-[12px] leading-6 text-white/55">
+                {work.scope.map((item) => <li key={item}>{item}</li>)}
+              </ul>
+            </div>
+          ) : null}
+          <div className={isClientWork ? 'hidden' : 'mt-auto flex flex-wrap gap-2 pt-6'}>
             {/* A work with no reachable deployment still has somewhere
                 to send a visitor when it has its own page: the page,
                 in this tab. Nothing here ever stands in for a demo
@@ -288,6 +327,24 @@ function GroupHeading({
 
 export default function FeaturedWorks() {
   return (
+    <>
+    <section id="client-work" aria-labelledby="client-work-heading" className="relative scroll-mt-20 overflow-hidden bg-[#010101] px-5 py-20 md:px-12 md:py-28">
+      <div className="editorial-page-noise pointer-events-none absolute inset-0 opacity-[0.12]" />
+      <div className="relative mx-auto max-w-7xl">
+        <AnimateIn>
+          <div className="flex flex-col gap-5 border-b border-white/[0.08] pb-8 md:flex-row md:items-end md:justify-between">
+            <div>
+              <p className="mb-4 text-[12px] tracking-[0.24em] text-zinc-400">CLIENT WORK</p>
+              <h2 id="client-work-heading" className="text-[clamp(2rem,4.6vw,3.6rem)] font-black leading-[1.2] tracking-[-0.025em] text-white">受託実績</h2>
+            </div>
+            <p className="max-w-lg text-[14px] leading-7 text-white/58 md:text-right">実際にご依頼いただき、設計・開発・納品まで対応した案件です。</p>
+          </div>
+        </AnimateIn>
+        <div className="mt-12">
+          <WorkCard work={clientWork} delay={100} />
+        </div>
+      </div>
+    </section>
     <section id="works" className="relative scroll-mt-20 overflow-hidden bg-[#010101] px-5 py-20 md:px-12 md:py-28">
       <div className="editorial-page-noise pointer-events-none absolute inset-0 opacity-[0.12]" />
       <div className="relative mx-auto max-w-7xl">
@@ -355,5 +412,6 @@ export default function FeaturedWorks() {
         </div>
       </div>
     </section>
+    </>
   )
 }

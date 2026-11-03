@@ -25,7 +25,50 @@ function collectFailedRequests(page: Page) {
 }
 
 test.describe('short sales landing page', () => {
-  test('shows only the six sales sections and keeps the primary routes clear', async ({ page }) => {
+  test('client automation illustration stays contained at desktop, tablet and mobile widths', async ({ page }) => {
+    const runtimeErrors = collectRuntimeErrors(page)
+    const failedRequests = collectFailedRequests(page)
+    const httpErrors: string[] = []
+    page.on('response', (response) => {
+      if (response.status() >= 400) httpErrors.push(`${response.status()} ${response.url()}`)
+    })
+
+    await page.goto(`${BASE_URL}/`, { waitUntil: 'networkidle' })
+    for (const width of [1440, 1024, 768, 390, 320]) {
+      await page.setViewportSize({ width, height: 1000 })
+      const card = page.locator('#client-work article')
+      const figure = card.locator('figure')
+      await figure.scrollIntoViewIfNeeded()
+      await expect(figure).toBeVisible()
+      const image = figure.getByRole('img', { name: /Googleスプレッドシート連携業務自動化ツールのイメージ/ })
+      await expect(image).toBeVisible()
+      await expect.poll(() => image.evaluate((element: HTMLImageElement) => element.naturalWidth)).toBeGreaterThan(0)
+      await expect(figure).toContainText('CONCEPT IMAGE')
+      await expect(card).not.toContainText('AUTOMATION / CONCEPT UI')
+      await expect(card).not.toContainText('掲載許可取得済み')
+      await expect(card.locator('a, iframe')).toHaveCount(0)
+      await expect(card).toContainText('Client Work ・ 有償案件 ・ 納品済み')
+      await expect(card).toContainText('Googleスプレッドシート連携 業務自動化ツール')
+      const imageBox = await image.boundingBox()
+      const descriptionBox = await card.getByText('Client Work ・ 有償案件 ・ 納品済み').boundingBox()
+      const scopeBox = await card.getByText('対応内容', { exact: true }).boundingBox()
+      expect(imageBox).not.toBeNull()
+      expect(descriptionBox).not.toBeNull()
+      expect(scopeBox).not.toBeNull()
+      expect(imageBox!.y).toBeGreaterThanOrEqual(descriptionBox!.y + descriptionBox!.height)
+      expect(scopeBox!.y).toBeGreaterThan(imageBox!.y + imageBox!.height)
+      expect(imageBox!.width / imageBox!.height).toBeCloseTo(16 / 9, 1)
+      expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true)
+      expect(await figure.evaluate((element) => element.scrollWidth <= element.clientWidth)).toBe(true)
+      await expect.poll(() => card.evaluate((element) => getComputedStyle(element.parentElement!).opacity)).toBe('1')
+      await card.screenshot({ path: `/tmp/aicmode-client-automation-${width}.png`, style: 'nav { visibility: hidden !important; }' })
+    }
+    expect(runtimeErrors).toEqual([])
+    expect(failedRequests).toEqual([])
+    expect(httpErrors).toEqual([])
+  })
+
+  test('shows the sales sections and client work and keeps the primary routes clear', async ({ page }) => {
     const runtimeErrors = collectRuntimeErrors(page)
     const failedRequests = collectFailedRequests(page)
 
@@ -40,10 +83,22 @@ test.describe('short sales landing page', () => {
       'top',
       'services',
       'healthcare',
+      'client-work',
       'works',
       'about',
       'contact',
     ])
+
+    const clientWork = page.locator('#client-work')
+    await expect(clientWork.getByRole('heading', { name: '受託実績', exact: true })).toBeVisible()
+    await expect(clientWork.locator('article')).toHaveCount(1)
+    await expect(clientWork).toContainText('Googleスプレッドシート連携 業務自動化ツール')
+    await expect(clientWork).toContainText('Client Work ・ 有償案件 ・ 納品済み')
+    await expect(clientWork).toContainText('要件整理')
+    await expect(clientWork).toContainText('設計資料作成')
+    await expect(clientWork.locator('a')).toHaveCount(0)
+    await expect(clientWork.locator('img')).toHaveCount(1)
+    await expect(clientWork).not.toContainText(/40,000|40000|Google Apps Script|GAS/)
 
     const hero = page.locator('#top')
     await expect(hero).toContainText('医療・介護にも対応できます。')

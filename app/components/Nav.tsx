@@ -4,8 +4,8 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
 
 const links = [
-  { label: 'できること', href: '#services' },
   { label: '制作実績', href: '#works' },
+  { label: 'できること', href: '#services' },
   { label: '医療・介護', href: '#healthcare' },
   { label: '自己紹介', href: '#about' },
   { label: 'よくある質問', href: '/faq' },

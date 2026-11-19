@@ -205,11 +205,13 @@ export default function Home() {
       <Nav />
       <main id="main">
         <Hero />
+        {/* Contact sits right under the first view, so the way to get in touch
+            is never more than one scroll away. */}
+        <HomeContact />
+        <FeaturedWorks />
         <HomeServices />
         <HomeHealthcare />
-        <FeaturedWorks />
         <HomeAbout />
-        <HomeContact />
       </main>
       <Footer />
     </>

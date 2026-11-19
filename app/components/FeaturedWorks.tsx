@@ -1,6 +1,7 @@
 import Image from 'next/image'
 import Link from 'next/link'
 import AnimateIn from './AnimateIn'
+import WorksDisclosure from './WorksDisclosure'
 import { caseStudies } from '../data/caseStudies'
 import { LIVE_LINK_PAUSED, aiProjects, projects, webProjectCount } from '../data/projects'
 import {
@@ -177,11 +178,11 @@ const clientWork: FeaturedWork = {
   scope: ['要件整理', '業務フロー設計', 'Googleスプレッドシート連携', '自動送信フロー構築', '設計資料作成', '納品'],
 }
 
-/** One featured card. Identical treatment in both groups: the hierarchy is
-    carried by the headings and the order, never by the card design. */
+/** One featured card. Identical treatment in every group: the hierarchy is
+    carried by the headings and the order, never by the card design. Every
+    group sits under its own h3, so every card title is an h4. */
 function WorkCard({ work, delay }: { work: FeaturedWork; delay: number }) {
   const isClientWork = work.projectType === 'Client Work'
-  const Heading = isClientWork ? 'h3' : 'h4'
   return (
     <AnimateIn delay={delay}>
       <article className="group flex h-full flex-col overflow-hidden border border-white/[0.09] bg-white/[0.018]">
@@ -216,7 +217,7 @@ function WorkCard({ work, delay }: { work: FeaturedWork; delay: number }) {
           <p className="text-[10px] font-semibold tracking-[0.14em]" style={{ color: work.accent }}>
             {work.label}
           </p>
-          <Heading className="mt-3 text-xl font-semibold leading-7 text-white">{work.title}</Heading>
+          <h4 className="mt-3 text-xl font-semibold leading-7 text-white">{work.title}</h4>
           <p className="mt-4 text-[14px] leading-7 text-white/60">{work.description}</p>
           <p className="mt-4 text-[10px] leading-5 tracking-[0.08em] text-white/38">
             {work.projectType === 'Client Work' ? 'Client Work ・ 有償案件' : PROJECT_TYPE_LABEL[work.projectType]} ・ {work.status === 'delivered' ? '納品済み' : STATUS_LABEL[work.status]}
@@ -287,19 +288,20 @@ function WorkCard({ work, delay }: { work: FeaturedWork; delay: number }) {
 }
 
 /**
- * A group heading. `rank` is the only thing that separates MAIN from SUB, and
- * it changes one small label — no second palette, no second card style.
+ * A group heading. `rank` is the only thing that separates the groups, and it
+ * changes one small label — no second palette, no second card style. Client
+ * work, the paid and delivered piece, reads at MAIN weight.
  */
 function GroupHeading({
   rank,
   title,
   description,
 }: {
-  rank: 'MAIN' | 'SUB'
+  rank: 'CLIENT WORK' | 'MAIN' | 'SUB'
   title: string
   description: string
 }) {
-  const isMain = rank === 'MAIN'
+  const isMain = rank !== 'SUB'
   return (
     <div className="flex flex-col gap-3 md:flex-row md:items-end md:justify-between md:gap-8">
       <div className="flex flex-wrap items-center gap-3">
@@ -325,34 +327,35 @@ function GroupHeading({
   )
 }
 
+/** How many cards the folded list holds, from the same arrays it renders. */
+const totalWorkCount = 1 + aiWorks.length + webWorks.length
+
+/** What the folded section says before it is opened: what exists, and how much. */
+const workSummary = [
+  { label: '受託実績', count: 1 },
+  { label: 'AI・業務自動化', count: aiWorks.length },
+  { label: 'Web制作', count: webProjectCount },
+] as const
+
+/**
+ * The top page's works, folded.
+ *
+ * Closed, the section is a heading, one line, the counts and two ways on: the
+ * button that opens the full list here, and the web gallery at `/works`.
+ * Opened, it is the same list as before — the client work first, then every
+ * AI / automation piece newest first, then the web group — rendered from the
+ * same data in the same order, so nothing is dropped by folding it.
+ */
 export default function FeaturedWorks() {
   return (
-    <>
-    <section id="client-work" aria-labelledby="client-work-heading" className="relative scroll-mt-20 overflow-hidden bg-[#010101] px-5 py-20 md:px-12 md:py-28">
+    <section id="works" aria-labelledby="works-heading" className="relative scroll-mt-20 overflow-hidden bg-[#010101] px-5 py-14 md:px-12 md:py-20">
       <div className="editorial-page-noise pointer-events-none absolute inset-0 opacity-[0.12]" />
       <div className="relative mx-auto max-w-7xl">
         <AnimateIn>
-          <div className="flex flex-col gap-5 border-b border-white/[0.08] pb-8 md:flex-row md:items-end md:justify-between">
+          <div className="flex flex-col gap-4 border-b border-white/[0.08] pb-6 md:flex-row md:items-end md:justify-between md:gap-8">
             <div>
-              <p className="mb-4 text-[12px] tracking-[0.24em] text-zinc-400">CLIENT WORK</p>
-              <h2 id="client-work-heading" className="text-[clamp(2rem,4.6vw,3.6rem)] font-black leading-[1.2] tracking-[-0.025em] text-white">受託実績</h2>
-            </div>
-            <p className="max-w-lg text-[14px] leading-7 text-white/58 md:text-right">実際にご依頼いただき、設計・開発・納品まで対応した案件です。</p>
-          </div>
-        </AnimateIn>
-        <div className="mt-12">
-          <WorkCard work={clientWork} delay={100} />
-        </div>
-      </div>
-    </section>
-    <section id="works" className="relative scroll-mt-20 overflow-hidden bg-[#010101] px-5 py-20 md:px-12 md:py-28">
-      <div className="editorial-page-noise pointer-events-none absolute inset-0 opacity-[0.12]" />
-      <div className="relative mx-auto max-w-7xl">
-        <AnimateIn>
-          <div className="flex flex-col gap-5 border-b border-white/[0.08] pb-8 md:flex-row md:items-end md:justify-between">
-            <div>
-              <p className="mb-4 text-[12px] tracking-[0.24em] text-zinc-400">代表制作実績</p>
-              <h2 className="text-[clamp(2rem,4.6vw,3.6rem)] font-black leading-[1.2] tracking-[-0.025em] text-white">
+              <p className="mb-3 text-[12px] tracking-[0.24em] text-zinc-400">制作実績</p>
+              <h2 id="works-heading" className="text-[clamp(1.6rem,3.4vw,2.6rem)] font-black leading-[1.25] tracking-[-0.025em] text-white">
                 実際に作ったもの
               </h2>
             </div>
@@ -362,56 +365,92 @@ export default function FeaturedWorks() {
           </div>
         </AnimateIn>
 
-        {/* MAIN. First, and the larger of the two groups, because that is what
-            this portfolio is for. */}
-        <div className="mt-12">
-          <AnimateIn>
-            <GroupHeading
-              rank="MAIN"
-              title="AI・業務自動化"
-              description="AI・業務自動化を中心に、実際に設計・開発した制作実績です。"
-            />
-          </AnimateIn>
-          <div className="mt-7 grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
-            {aiWorks.map((work, index) => (
-              <WorkCard key={work.id} work={work} delay={100 + index * 80} />
+        <AnimateIn delay={100}>
+          <dl className="mt-6 grid grid-cols-3 gap-2 sm:gap-3">
+            {workSummary.map((item) => (
+              <div key={item.label} className="flex flex-col-reverse justify-end gap-1 border border-white/[0.08] bg-white/[0.018] px-3 py-3.5 sm:px-5 sm:py-4">
+                <dt className="break-keep text-[11px] leading-5 tracking-[0.06em] text-white/55 sm:text-[12px]">{item.label}</dt>
+                <dd className="text-[1.5rem] font-bold leading-none tracking-[-0.02em] text-white sm:text-[1.9rem]">
+                  {item.count}
+                  <span className="ml-1 text-[12px] font-medium tracking-normal text-white/50">件</span>
+                </dd>
+              </div>
             ))}
-          </div>
-        </div>
+          </dl>
+        </AnimateIn>
 
-        {/* SUB. Separated by space and by its own heading, not by a different
-            look — same cards, read second. */}
-        <div className="mt-16 border-t border-white/[0.07] pt-12 md:mt-20 md:pt-14">
-          <AnimateIn>
-            <GroupHeading
-              rank="SUB"
-              title="Web制作"
-              description="Webサイト・LP・情報発信サイトなどの制作にも対応しています。"
-            />
-          </AnimateIn>
-          <div className="mt-7 grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
-            {webWorks.map((work, index) => (
-              <WorkCard key={work.id} work={work} delay={100 + index * 80} />
-            ))}
-            {/* Keeps the row from reading as a half-empty shelf, and says where
-                the remaining web work actually is instead of listing it here. */}
-            <AnimateIn className="lg:col-span-2" delay={100 + webWorks.length * 80}>
-              <div className="flex h-full flex-col justify-center gap-4 border border-dashed border-white/[0.09] bg-white/[0.012] p-7">
-                <p className="text-[13px] leading-7 text-white/55">
-                  ホームページ、1ページの紹介サイト、ネットショップなどのWeb制作は、「Web制作実績」ページでまとめてご覧いただけます。
-                </p>
+        <AnimateIn delay={160}>
+          <div className="mt-6">
+            <WorksDisclosure
+              count={totalWorkCount}
+              aside={
                 <Link
                   href="/works#archive"
-                  className="inline-flex min-h-11 w-full items-center justify-center border border-white/14 px-4 text-[11px] font-semibold tracking-[0.06em] text-white/70 transition hover:border-white/35 hover:text-white sm:w-auto sm:self-start sm:px-6"
+                  className="inline-flex min-h-11 items-center justify-center gap-2 text-[12px] tracking-[0.06em] text-white/55 underline decoration-white/20 underline-offset-4 transition hover:text-white"
                 >
-                  Web制作の実績を見る（{webProjectCount}件）
+                  Web制作実績ページへ
                 </Link>
+              }
+            >
+              {/* CLIENT WORK. The one paid, delivered piece, read first. */}
+              <div id="client-work" className="scroll-mt-24 pt-10">
+                <GroupHeading
+                  rank="CLIENT WORK"
+                  title="受託実績"
+                  description="実際にご依頼いただき、設計・開発・納品まで対応した案件です。"
+                />
+                <div className="mt-7">
+                  <WorkCard work={clientWork} delay={0} />
+                </div>
               </div>
-            </AnimateIn>
+
+              {/* MAIN. The larger group, because that is what this portfolio is for. */}
+              <div className="mt-14 border-t border-white/[0.07] pt-10 md:mt-16 md:pt-12">
+                <GroupHeading
+                  rank="MAIN"
+                  title="AI・業務自動化"
+                  description="AI・業務自動化を中心に、実際に設計・開発した制作実績です。"
+                />
+                <div className="mt-7 grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
+                  {aiWorks.map((work, index) => (
+                    <WorkCard key={work.id} work={work} delay={(index % 3) * 80} />
+                  ))}
+                </div>
+              </div>
+
+              {/* SUB. Separated by space and by its own heading, not by a different
+                  look — same cards, read second. */}
+              <div className="mt-14 border-t border-white/[0.07] pt-10 md:mt-16 md:pt-12">
+                <GroupHeading
+                  rank="SUB"
+                  title="Web制作"
+                  description="Webサイト・LP・情報発信サイトなどの制作にも対応しています。"
+                />
+                <div className="mt-7 grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
+                  {webWorks.map((work, index) => (
+                    <WorkCard key={work.id} work={work} delay={index * 80} />
+                  ))}
+                  {/* Keeps the row from reading as a half-empty shelf, and says where
+                      the remaining web work actually is instead of listing it here. */}
+                  <AnimateIn className="lg:col-span-2" delay={webWorks.length * 80}>
+                    <div className="flex h-full flex-col justify-center gap-4 border border-dashed border-white/[0.09] bg-white/[0.012] p-7">
+                      <p className="text-[13px] leading-7 text-white/55">
+                        ホームページ、1ページの紹介サイト、ネットショップなどのWeb制作は、「Web制作実績」ページでまとめてご覧いただけます。
+                      </p>
+                      <Link
+                        href="/works#archive"
+                        className="inline-flex min-h-11 w-full items-center justify-center border border-white/14 px-4 text-[11px] font-semibold tracking-[0.06em] text-white/70 transition hover:border-white/35 hover:text-white sm:w-auto sm:self-start sm:px-6"
+                      >
+                        Web制作の実績を見る（{webProjectCount}件）
+                      </Link>
+                    </div>
+                  </AnimateIn>
+                </div>
+              </div>
+            </WorksDisclosure>
           </div>
-        </div>
+        </AnimateIn>
       </div>
     </section>
-    </>
   )
 }

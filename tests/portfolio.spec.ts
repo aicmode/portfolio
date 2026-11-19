@@ -30,6 +30,18 @@ function collectFailedRequests(page: Page) {
   return failures
 }
 
+/**
+ * The top page folds its works list behind one toggle. Opens it (if it is not
+ * open already) and waits for the panel to finish expanding.
+ */
+async function openWorksList(page: Page) {
+  const toggle = page.locator('#works button[aria-controls="works-list-panel"]').first()
+  if ((await toggle.getAttribute('aria-expanded')) !== 'true') await toggle.click()
+  await expect(toggle).toHaveAttribute('aria-expanded', 'true')
+  await expect(page.locator('#works-list-panel')).not.toHaveAttribute('inert', /.*/)
+  await expect.poll(async () => (await page.locator('#works-list-panel').boundingBox())?.height ?? 0).toBeGreaterThan(1000)
+}
+
 test.describe('short sales landing page', () => {
   test('client automation illustration stays contained at desktop, tablet and mobile widths', async ({ page }) => {
     const runtimeErrors = collectRuntimeErrors(page)
@@ -40,6 +52,7 @@ test.describe('short sales landing page', () => {
     })
 
     await page.goto(`${BASE_URL}/`, { waitUntil: 'networkidle' })
+    await openWorksList(page)
     for (const width of [1440, 1024, 768, 390, 320]) {
       await page.setViewportSize({ width, height: 1000 })
       const card = page.locator('#client-work article')
@@ -85,16 +98,18 @@ test.describe('short sales landing page', () => {
     const sectionIds = await page.locator('main#main > section').evaluateAll((sections) =>
       sections.map((section) => section.id),
     )
+    // Contact right under the first view; the works list (client work
+    // included) folded into one section.
     expect(sectionIds).toEqual([
       'top',
+      'contact',
+      'works',
       'services',
       'healthcare',
-      'client-work',
-      'works',
       'about',
-      'contact',
     ])
 
+    await openWorksList(page)
     const clientWork = page.locator('#client-work')
     await expect(clientWork.getByRole('heading', { name: '受託実績', exact: true })).toBeVisible()
     await expect(clientWork.locator('article')).toHaveCount(1)
@@ -126,13 +141,15 @@ test.describe('short sales landing page', () => {
     // the page makes about what this portfolio is, so it is asserted here.
     const works = page.locator('#works')
     const groupHeadings = await works.locator('h3').allTextContents()
-    expect(groupHeadings).toEqual(['AI・業務自動化', 'Web制作'])
+    expect(groupHeadings).toEqual(['受託実績', 'AI・業務自動化', 'Web制作'])
 
     // Every AI / automation piece lives here now — the ones that used to be
-    // reachable only from the archive included, since /works is web-only.
+    // reachable only from the archive included, since /works is web-only —
+    // plus the client work, which reads first.
     const featured = works.locator('article')
-    await expect(featured).toHaveCount(10)
+    await expect(featured).toHaveCount(11)
     for (const title of [
+      'Googleスプレッドシート連携 業務自動化ツール',
       'AI食品在庫・発注管理',
       'Enterprise RAG Knowledge AI',
       'AI工事・リフォーム見積管理システム',
@@ -148,7 +165,7 @@ test.describe('short sales landing page', () => {
     }
     // Newest first, and nothing pinned: MediBrief is the oldest AI piece, so it
     // closes the group rather than opening it.
-    expect((await featured.locator('h4').allTextContents()).slice(0, 9)).toEqual([
+    expect((await featured.locator('h4').allTextContents()).slice(1, 10)).toEqual([
       'AI食品在庫・発注管理',
       'Enterprise RAG Knowledge AI',
       'AI工事・リフォーム見積管理システム',
@@ -314,8 +331,8 @@ test.describe('short sales landing page', () => {
     const navLabels = await page.locator('nav > div').first().getByRole('link').allTextContents()
     expect(navLabels.map((label) => label.trim())).toEqual([
       'AIC',
-      'できること',
       '制作実績',
+      'できること',
       '医療・介護',
       '自己紹介',
       'よくある質問',
@@ -324,6 +341,9 @@ test.describe('short sales landing page', () => {
 
     const pageHeight = await page.evaluate(() => document.documentElement.scrollHeight)
     expect(pageHeight).toBeLessThan(12000)
+    // Folded again, the page is short: under half its old 7,800px.
+    await page.locator('#works button[aria-controls="works-list-panel"]').first().click()
+    await expect.poll(() => page.evaluate(() => document.documentElement.scrollHeight)).toBeLessThan(3600)
     await page.evaluate(() => window.scrollTo(0, document.documentElement.scrollHeight))
     await page.waitForTimeout(1200)
     await page.evaluate(() => window.scrollTo(0, 0))
@@ -346,8 +366,10 @@ test.describe('short sales landing page', () => {
       height: document.documentElement.scrollHeight,
     }))
     expect(dimensions.scrollWidth).toBe(dimensions.clientWidth)
-    expect(dimensions.height).toBeLessThan(22000)
-    await expect(page.locator('#works article')).toHaveCount(10)
+    // Folded, the phone page is under a third of its old 11,800px.
+    expect(dimensions.height).toBeLessThan(4400)
+    // Folded is not removed: every card is still in the document.
+    await expect(page.locator('#works article')).toHaveCount(11)
 
     await page.getByRole('button', { name: 'メニューを開く' }).click()
     await expect(page.getByRole('link', { name: 'お問い合わせ', exact: true })).toBeVisible()
@@ -458,6 +480,7 @@ test.describe('detail pages retain the removed information', () => {
     for (const width of [1440, 390, 320]) {
       await page.setViewportSize({ width, height: width === 1440 ? 900 : 844 })
       await page.goto(`${BASE_URL}/`, { waitUntil: 'networkidle' })
+      await openWorksList(page)
 
       const handoverCard = page.locator('#works article').filter({
         has: page.getByRole('heading', { name: 'Handover Maker', exact: true }),
@@ -507,6 +530,7 @@ test.describe('detail pages retain the removed information', () => {
     }
 
     await page.goto(`${BASE_URL}/`, { waitUntil: 'networkidle' })
+    await openWorksList(page)
     const adMonitor = page.locator('#works article').filter({
       has: page.getByRole('heading', { name: 'Meta Ad Library Monitor', exact: true }),
     })
@@ -803,4 +827,175 @@ test.describe('detail pages retain the removed information', () => {
       expect(httpErrors).toEqual([])
     })
   }
+})
+
+test.describe('compact top page', () => {
+  for (const viewport of [
+    { name: 'desktop', width: 1440, height: 900 },
+    { name: 'mobile', width: 375, height: 812 },
+  ]) {
+    test(`first view reaches contact, and the works list folds at ${viewport.name} width`, async ({ page }) => {
+      const runtimeErrors = collectRuntimeErrors(page)
+      const failedRequests = collectFailedRequests(page)
+      const httpErrors: string[] = []
+      page.on('response', (response) => {
+        if (response.status() >= 400) httpErrors.push(`${response.status()} ${response.url()}`)
+      })
+      await page.setViewportSize({ width: viewport.width, height: viewport.height })
+      await page.goto(`${BASE_URL}/`, { waitUntil: 'networkidle' })
+
+      // The hero is no longer a full screen of its own, and it carries a
+      // contact CTA next to the works one.
+      const heroHeight = (await page.locator('#top').boundingBox())!.height
+      expect(heroHeight).toBeLessThan(viewport.height)
+      const consult = page.locator('#top').getByRole('link', { name: '相談する' })
+      await expect(consult).toHaveAttribute('href', '#contact')
+      await expect(consult).toBeInViewport()
+      await expect(page.locator('#top').getByRole('link', { name: /制作実績を見る/ })).toHaveAttribute('href', '#works')
+      await expect(page.locator('#top').getByRole('link', { name: /できることを見る/ })).toHaveAttribute('href', '#services')
+      const consultBox = (await consult.boundingBox())!
+      expect(consultBox.height).toBeGreaterThanOrEqual(44)
+
+      // Contact is the section right after the hero.
+      const contactTop = await page.locator('#contact').evaluate((el) => el.getBoundingClientRect().top + window.scrollY)
+      expect(contactTop).toBeLessThan(viewport.height)
+      await consult.click()
+      await expect(page.locator('#contact')).toBeInViewport()
+      await expect(page.locator('#contact').getByRole('link', { name: THREADS_LABEL })).toBeInViewport()
+      const detailLink = page.locator('#contact').getByRole('link', { name: 'お問い合わせについて詳しく見る' })
+      await expect(detailLink).toHaveAttribute('href', '/contact')
+      expect((await detailLink.boundingBox())!.height).toBeGreaterThanOrEqual(44)
+
+      // Folded by default: the list is in the document but closed and inert.
+      const toggle = page.locator('#works button[aria-controls="works-list-panel"]').first()
+      const panel = page.locator('#works-list-panel')
+      await expect(toggle).toHaveText(/作品一覧を見る（11件）/)
+      await expect(toggle).toHaveAttribute('aria-expanded', 'false')
+      await expect(panel).toHaveAttribute('inert', '')
+      await expect(panel.locator('article')).toHaveCount(11)
+      expect((await panel.boundingBox())!.height).toBeLessThan(2)
+      expect((await toggle.boundingBox())!.height).toBeGreaterThanOrEqual(44)
+      // What exists is visible before opening it.
+      const summary = page.locator('#works dl')
+      await expect(summary).toContainText('受託実績')
+      await expect(summary).toContainText('AI・業務自動化')
+      await expect(summary).toContainText('Web制作')
+      await expect(page.locator('#works').getByRole('link', { name: 'Web制作実績ページへ' })).toHaveAttribute('href', '/works#archive')
+
+      // Opens with a click and shows every card, images loaded.
+      await toggle.click()
+      await expect(toggle).toHaveAttribute('aria-expanded', 'true')
+      await expect(toggle).toHaveText(/作品一覧を閉じる/)
+      await expect.poll(async () => (await panel.boundingBox())?.height ?? 0).toBeGreaterThan(1000)
+      for (const image of await panel.locator('article img').all()) {
+        await image.scrollIntoViewIfNeeded()
+        await expect.poll(() => image.evaluate((el: HTMLImageElement) => el.naturalWidth)).toBeGreaterThan(0)
+      }
+      await expect(page.locator('#client-work article')).toContainText('Client Work ・ 有償案件 ・ 納品済み')
+
+      // The close button at the end of the list folds it and returns to the toggle.
+      const bottomClose = panel.getByRole('button', { name: '作品一覧を閉じる' })
+      await bottomClose.scrollIntoViewIfNeeded()
+      await bottomClose.click()
+      await expect(toggle).toHaveAttribute('aria-expanded', 'false')
+      await expect(toggle).toBeFocused()
+      await expect(toggle).toBeInViewport()
+      await expect.poll(async () => (await panel.boundingBox())?.height ?? 99).toBeLessThan(2)
+
+      // Keyboard: Enter opens, Space closes, and closed content takes no Tab stop.
+      await toggle.focus()
+      await page.keyboard.press('Enter')
+      await expect(toggle).toHaveAttribute('aria-expanded', 'true')
+      await page.keyboard.press('Space')
+      await expect(toggle).toHaveAttribute('aria-expanded', 'false')
+      await page.keyboard.press('Tab')
+      expect(await page.evaluate(() => document.activeElement?.closest('#works-list-panel') === null)).toBe(true)
+
+      const dimensions = await page.evaluate(() => ({
+        scrollWidth: document.documentElement.scrollWidth,
+        clientWidth: document.documentElement.clientWidth,
+      }))
+      expect(dimensions.scrollWidth).toBe(dimensions.clientWidth)
+      expect(runtimeErrors).toEqual([])
+      expect(failedRequests).toEqual([])
+      expect(httpErrors).toEqual([])
+    })
+  }
+
+  test('nav anchors land each section clear of the fixed header', async ({ page }) => {
+    await page.setViewportSize({ width: 1440, height: 900 })
+    await page.goto(`${BASE_URL}/`, { waitUntil: 'networkidle' })
+    const desktopLinks = page.locator('nav > div').first()
+    for (const [label, id] of [
+      ['制作実績', 'works'],
+      ['できること', 'services'],
+      ['医療・介護', 'healthcare'],
+      ['自己紹介', 'about'],
+      ['お問い合わせ', 'contact'],
+    ] as const) {
+      await desktopLinks.getByRole('link', { name: label, exact: true }).click()
+      await expect(page).toHaveURL(`${BASE_URL}/#${id}`)
+      await expect(page.locator(`#${id}`)).toBeInViewport()
+      await page.waitForTimeout(900)
+      const navBottom = (await page.locator('nav').boundingBox())!.height
+      const headingTop = (await page.locator(`#${id} h2`).first().boundingBox())!.y
+      expect(headingTop).toBeGreaterThanOrEqual(navBottom)
+    }
+    await desktopLinks.getByRole('link', { name: 'AIC', exact: true }).click()
+    await expect(page.locator('#top h1')).toBeInViewport()
+
+    // Mobile menu: open, jump, and the panel closes behind it.
+    await page.setViewportSize({ width: 375, height: 812 })
+    for (const [label, id] of [
+      ['制作実績', 'works'],
+      ['自己紹介', 'about'],
+    ] as const) {
+      await page.getByRole('button', { name: 'メニューを開く' }).click()
+      await page.locator('#mobile-nav-panel').getByRole('link', { name: label, exact: true }).click()
+      await expect(page.locator('#mobile-nav-panel')).toHaveCount(0)
+      await expect(page.locator(`#${id} h2`).first()).toBeInViewport()
+      await page.waitForTimeout(900)
+      const navBottom = (await page.locator('nav').boundingBox())!.height
+      const headingTop = (await page.locator(`#${id} h2`).first().boundingBox())!.y
+      expect(headingTop).toBeGreaterThanOrEqual(navBottom)
+    }
+  })
+
+  test('every detail route linked from the top page answers 200', async ({ page, request }) => {
+    await page.goto(`${BASE_URL}/`, { waitUntil: 'networkidle' })
+    for (const [name, href] of [
+      ['お問い合わせについて詳しく見る', '/contact'],
+      ['できることを詳しく見る', '/services'],
+      ['医療・介護について詳しく見る', '/healthcare'],
+      ['自己紹介を詳しく見る', '/about'],
+      ['Web制作実績ページへ', '/works#archive'],
+    ] as const) {
+      await expect(page.getByRole('link', { name, exact: true })).toHaveAttribute('href', href)
+      const response = await request.get(`${BASE_URL}${href.split('#')[0]}`)
+      expect(response.status(), href).toBe(200)
+    }
+    await expect(page.getByRole('link', { name: 'よくある質問', exact: true }).first()).toHaveAttribute('href', '/faq')
+    expect((await request.get(`${BASE_URL}/faq`)).status()).toBe(200)
+
+    // The detail pages still send visitors back to the top page's contact.
+    await page.goto(`${BASE_URL}/healthcare`)
+    await page.getByRole('navigation', { name: '詳細ページナビゲーション' }).getByRole('link', { name: 'お問い合わせ' }).click()
+    await expect(page).toHaveURL(`${BASE_URL}/#contact`)
+    await expect(page.locator('#contact')).toBeInViewport()
+  })
+
+  test('an address inside the folded list opens it', async ({ page }) => {
+    await page.goto(`${BASE_URL}/#client-work`, { waitUntil: 'networkidle' })
+    const toggle = page.locator('#works button[aria-controls="works-list-panel"]').first()
+    await expect(toggle).toHaveAttribute('aria-expanded', 'true')
+    await expect(page.locator('#client-work article')).toBeInViewport()
+  })
+
+  test('the fold animation is off under reduced motion', async ({ page }) => {
+    await page.emulateMedia({ reducedMotion: 'reduce' })
+    await page.goto(`${BASE_URL}/`, { waitUntil: 'networkidle' })
+    // `motion-reduce:transition-none` drops the transitioned properties.
+    const property = await page.locator('#works-list-panel').evaluate((el) => getComputedStyle(el).transitionProperty)
+    expect(property).toBe('none')
+  })
 })

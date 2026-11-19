@@ -56,7 +56,7 @@ export default function Hero() {
     <section
       id="top"
       ref={sectionRef}
-      className="relative isolate min-h-screen flex flex-col items-center justify-center overflow-hidden bg-[#080808]"
+      className="relative isolate flex flex-col items-center overflow-hidden bg-[#080808]"
     >
       {/* Cinematic city-night background */}
       <motion.div
@@ -231,8 +231,9 @@ export default function Hero() {
         }}
       />
 
-      {/* The first view stays focused on the offer and two next actions. */}
-      <div className="relative z-10 w-full max-w-7xl mx-auto px-5 md:px-8 lg:px-12 pt-28 pb-32 lg:py-0">
+      {/* The first view answers three things — what this is, what can be asked
+          for, and how to get in touch — and is only as tall as that takes. */}
+      <div className="relative z-10 w-full max-w-7xl mx-auto px-5 md:px-8 lg:px-12 pt-24 pb-14 md:pt-28 md:pb-20">
         <div className="max-w-3xl select-none">
 
           {/* Left: branding — subtle parallax + fade out on scroll */}
@@ -266,22 +267,22 @@ export default function Hero() {
             </motion.h1>
 
             <motion.div
-              className="mx-auto mt-7 max-w-[34rem] lg:mx-0"
+              className="mx-auto mt-6 max-w-[34rem] lg:mx-0"
               initial={{ opacity: 0, y: 14 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 1, delay: 0.5, ease: [0.22, 1, 0.36, 1] }}
             >
-              <p className="text-[15px] leading-8 text-white/78 md:text-[17px] md:leading-9">
+              <p className="text-[15px] leading-8 text-white/78 md:text-[17px] md:leading-8">
                 毎日の繰り返し作業、情報整理、問い合わせ対応など、
                 時間のかかる仕事をAIやシステムを使って効率化します。
               </p>
-              <p className="mt-4 border-l border-[rgba(212,175,55,0.45)] pl-4 text-[14px] leading-7 text-white/62 md:text-[15px] md:leading-8">
+              <p className="mt-3 border-l border-[rgba(212,175,55,0.45)] pl-4 text-[14px] leading-7 text-white/62 md:text-[15px] md:leading-8">
                 看護師として約9年間働いた経験を活かし、医療・介護分野の業務改善にも対応できます。
               </p>
             </motion.div>
 
             <motion.ul
-              className="mx-auto mt-7 flex max-w-[34rem] flex-wrap items-center justify-center gap-x-3 gap-y-2.5 lg:mx-0 lg:justify-start"
+              className="mx-auto mt-6 flex max-w-[34rem] flex-wrap items-center justify-center gap-x-3 gap-y-2.5 lg:mx-0 lg:justify-start"
               initial={{ opacity: 0, y: 12 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 1, delay: 0.6, ease: [0.22, 1, 0.36, 1] }}
@@ -297,83 +298,94 @@ export default function Hero() {
             </motion.ul>
 
             <motion.div
-              className="mt-10 md:mt-14 flex flex-col items-stretch justify-center gap-3 sm:flex-row sm:items-center lg:justify-start"
+              className="mt-8"
               initial={{ opacity: 0, y: 22 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 1, delay: 0.95, ease: [0.22, 1, 0.36, 1] }}
             >
-              {/* Primary answers what can be discussed; secondary proves it. */}
-              <motion.a
+              <div className="flex items-stretch justify-center gap-3 lg:justify-start">
+                {/* Primary gets a visitor in touch; secondary proves the work. */}
+                <motion.a
+                  href="#contact"
+                  className="group inline-flex min-h-12 flex-1 items-center justify-center gap-2.5 whitespace-nowrap px-4 py-3.5 text-[13px] font-semibold tracking-[0.06em] text-[#080808] sm:flex-none sm:gap-3 sm:px-8 md:px-9 md:py-4 md:text-[14px]"
+                  style={{
+                    border: '1px solid rgba(212,175,55,0.48)',
+                    background: 'linear-gradient(135deg, rgba(255,255,255,0.96), rgba(212,175,55,0.82))',
+                    boxShadow: '0 0 36px rgba(212,175,55,0.12), inset 0 1px 0 rgba(255,255,255,0.55)',
+                  }}
+                  whileHover={{
+                    y: -2,
+                    boxShadow: '0 0 60px rgba(212,175,55,0.24), 0 0 110px rgba(109,40,217,0.12)',
+                    transition: { duration: 0.4, ease: [0.22, 1, 0.36, 1] },
+                  }}
+                >
+                  相談する
+                  <svg
+                    className="h-3 w-3 transition-transform duration-300 group-hover:translate-y-0.5 md:h-3.5 md:w-3.5"
+                    fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                    aria-hidden="true"
+                  >
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19 9l-7 7-7-7" />
+                  </svg>
+                </motion.a>
+                <motion.a
+                  href="#works"
+                  className="group inline-flex min-h-12 flex-1 items-center justify-center gap-2.5 whitespace-nowrap px-4 py-3.5 text-[13px] font-semibold tracking-[0.06em] text-white sm:flex-none sm:gap-3 sm:px-8 md:px-9 md:py-4 md:text-[14px]"
+                  style={{
+                    border: '1px solid rgba(255,255,255,0.18)',
+                    background: 'transparent',
+                  }}
+                  whileHover={{
+                    background: '#ffffff',
+                    borderColor: '#ffffff',
+                    color: '#080808',
+                    boxShadow: '0 0 60px rgba(255,255,255,0.14), 0 0 100px rgba(109,40,217,0.1)',
+                    transition: { duration: 0.4, ease: [0.22, 1, 0.36, 1] },
+                  }}
+                >
+                  制作実績を見る
+                  <svg
+                    className="h-3 w-3 transition-transform duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 md:h-3.5 md:w-3.5"
+                    fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                    aria-hidden="true"
+                  >
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M17 7l-10 10M17 7H7m10 0v10" />
+                  </svg>
+                </motion.a>
+              </div>
+              <a
                 href="#services"
-                className="group inline-flex items-center justify-center gap-3 whitespace-nowrap px-6 py-3.5 text-[13px] font-semibold tracking-[0.06em] text-[#080808] sm:px-8 md:px-9 md:py-4 md:text-[14px]"
-                style={{
-                  border: '1px solid rgba(212,175,55,0.48)',
-                  background: 'linear-gradient(135deg, rgba(255,255,255,0.96), rgba(212,175,55,0.82))',
-                  boxShadow: '0 0 36px rgba(212,175,55,0.12), inset 0 1px 0 rgba(255,255,255,0.55)',
-                }}
-                whileHover={{
-                  y: -2,
-                  boxShadow: '0 0 60px rgba(212,175,55,0.24), 0 0 110px rgba(109,40,217,0.12)',
-                  transition: { duration: 0.4, ease: [0.22, 1, 0.36, 1] },
-                }}
+                className="mt-2 inline-flex min-h-11 items-center gap-2 text-[12px] tracking-[0.08em] text-white/55 underline decoration-white/20 underline-offset-4 transition hover:text-white"
               >
                 できることを見る
-                <svg
-                  className="h-3 w-3 transition-transform duration-300 group-hover:translate-y-0.5 md:h-3.5 md:w-3.5"
-                  fill="none" stroke="currentColor" viewBox="0 0 24 24"
-                  aria-hidden="true"
-                >
+                <svg className="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19 9l-7 7-7-7" />
                 </svg>
-              </motion.a>
-              <motion.a
-                href="#works"
-                className="group inline-flex items-center justify-center gap-3 whitespace-nowrap px-6 py-3.5 text-[13px] font-semibold tracking-[0.06em] text-white sm:px-8 md:px-9 md:py-4 md:text-[14px]"
-                style={{
-                  border: '1px solid rgba(255,255,255,0.18)',
-                  background: 'transparent',
-                }}
-                whileHover={{
-                  background: '#ffffff',
-                  borderColor: '#ffffff',
-                  color: '#080808',
-                  boxShadow: '0 0 60px rgba(255,255,255,0.14), 0 0 100px rgba(109,40,217,0.1)',
-                  transition: { duration: 0.4, ease: [0.22, 1, 0.36, 1] },
-                }}
-              >
-                制作実績を見る
-                <svg
-                  className="h-3 w-3 transition-transform duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 md:h-3.5 md:w-3.5"
-                  fill="none" stroke="currentColor" viewBox="0 0 24 24"
-                  aria-hidden="true"
-                >
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M17 7l-10 10M17 7H7m10 0v10" />
-                </svg>
-              </motion.a>
+              </a>
             </motion.div>
           </motion.div>
 
         </div>
       </div>
 
-      {/* Scroll indicator */}
+      {/* Scroll indicator — from md up, where the bottom padding leaves it room. */}
       <motion.div
-        className="absolute bottom-6 md:bottom-10 left-1/2 z-10 -translate-x-1/2 flex flex-col items-center gap-3 pointer-events-none"
+        className="absolute bottom-4 left-1/2 z-10 -translate-x-1/2 hidden md:flex flex-col items-center gap-2 pointer-events-none"
         initial={{ opacity: 0 }}
         animate={{ opacity: 0.45 }}
         transition={{ delay: 1.5, duration: 1.2 }}
       >
         <span className="text-[10px] tracking-[0.3em] text-zinc-400">下へスクロール</span>
-        <div className="w-[1px] h-10 md:h-12 overflow-hidden">
+        <div className="w-[1px] h-8 overflow-hidden">
           <div className="w-full h-full bg-gradient-to-b from-zinc-500 to-transparent animate-scroll-line" />
         </div>
       </motion.div>
 
-      {/* Bottom gradient fade into Works */}
+      {/* Bottom gradient fade into the contact section */}
       <div
         className="absolute bottom-0 left-0 right-0 z-[8] pointer-events-none"
         style={{
-          height: '200px',
+          height: '160px',
           background: 'linear-gradient(to bottom, transparent, #080808)',
         }}
       />

@@ -999,3 +999,223 @@ test.describe('compact top page', () => {
     expect(property).toBe('none')
   })
 })
+
+test.describe('works summary cards jump to their group', () => {
+  const summaryLink = (page: Page, label: RegExp) => page.locator('#works dl').getByRole('link', { name: label })
+  const toggleOf = (page: Page) => page.locator('#works button[aria-controls="works-list-panel"]').first()
+
+  /**
+   * The group's top has settled at its `scroll-margin-top` and its heading is
+   * clear of the fixed nav. Polled, so it waits out both the expand transition
+   * and the smooth scroll rather than guessing a delay.
+   */
+  async function expectGroupLanded(page: Page, id: string) {
+    const group = page.locator(`#${id}`)
+    await expect
+      .poll(
+        () =>
+          group.evaluate((element) => {
+            const margin = parseFloat(getComputedStyle(element).scrollMarginTop)
+            return Math.abs(element.getBoundingClientRect().top - margin) < 3
+          }),
+        { timeout: 6000 },
+      )
+      .toBe(true)
+    const navBottom = await page.locator('nav').first().evaluate((nav) => nav.getBoundingClientRect().bottom)
+    const headingTop = (await group.locator('h3').first().boundingBox())!.y
+    expect(headingTop).toBeGreaterThanOrEqual(navBottom)
+    await expect(group.locator('h3').first()).toBeInViewport()
+  }
+
+  async function scrollToSummary(page: Page) {
+    await page.locator('#works dl').evaluate((element) => {
+      document.documentElement.style.scrollBehavior = 'auto'
+      element.scrollIntoView({ block: 'center' })
+      document.documentElement.style.scrollBehavior = ''
+    })
+  }
+
+  test('counts follow the data and the toggle keeps its total', async ({ page }) => {
+    await page.goto(`${BASE_URL}/`, { waitUntil: 'networkidle' })
+    const panel = page.locator('#works-list-panel')
+    const clientCount = await panel.locator('#client-work article').count()
+    const aiCount = await panel.locator('#ai-works article').count()
+    expect(clientCount).toBeGreaterThanOrEqual(1)
+    expect(aiCount).toBe(9)
+    await expect(summaryLink(page, /^受託実績/)).toHaveAccessibleName(`受託実績 ${clientCount}件 — 作品一覧の受託実績へ移動`)
+    await expect(summaryLink(page, /^AI・業務自動化/)).toHaveAccessibleName(`AI・業務自動化 ${aiCount}件 — 作品一覧のAI・業務自動化へ移動`)
+    await expect(summaryLink(page, /^Web制作/)).toHaveAccessibleName('Web制作 21件 — Web制作実績ページを開く')
+    const total = await panel.locator('article').count()
+    expect(total).toBe(11)
+    await expect(toggleOf(page)).toHaveText(new RegExp(`作品一覧を見る（${total}件）`))
+    await expect(summaryLink(page, /^受託実績/)).toHaveAttribute('href', '#client-work')
+    await expect(summaryLink(page, /^AI・業務自動化/)).toHaveAttribute('href', '#ai-works')
+    await expect(summaryLink(page, /^Web制作/)).toHaveAttribute('href', '/works#archive')
+    // Exactly one element carries each anchor.
+    expect(await page.locator('[id="client-work"]').count()).toBe(1)
+    expect(await page.locator('[id="ai-works"]').count()).toBe(1)
+  })
+
+  for (const viewport of [
+    { name: 'desktop', width: 1440, height: 900 },
+    { name: 'mobile', width: 375, height: 812 },
+  ]) {
+    test(`client and AI cards open the closed list and land on their group at ${viewport.name} width`, async ({ page }) => {
+      const runtimeErrors = collectRuntimeErrors(page)
+      const failedRequests = collectFailedRequests(page)
+      await page.setViewportSize({ width: viewport.width, height: viewport.height })
+      await page.goto(`${BASE_URL}/`, { waitUntil: 'networkidle' })
+      const toggle = toggleOf(page)
+      const panel = page.locator('#works-list-panel')
+      await expect(toggle).toHaveAttribute('aria-expanded', 'false')
+
+      // Client work, from closed.
+      await scrollToSummary(page)
+      await summaryLink(page, /^受託実績/).click()
+      await expect(toggle).toHaveAttribute('aria-expanded', 'true')
+      await expect(page).toHaveURL(`${BASE_URL}/#client-work`)
+      await expectGroupLanded(page, 'client-work')
+      await expect(page.locator('#client-work article')).toBeVisible()
+      await expect(page.locator('#client-work article')).toContainText('Client Work ・ 有償案件 ・ 納品済み')
+
+      // AI, while open. Nine cards, order unchanged.
+      await scrollToSummary(page)
+      await summaryLink(page, /^AI・業務自動化/).click()
+      await expect(page).toHaveURL(`${BASE_URL}/#ai-works`)
+      await expectGroupLanded(page, 'ai-works')
+      expect(await page.locator('#ai-works h4').allTextContents()).toEqual([
+        'AI食品在庫・発注管理',
+        'Enterprise RAG Knowledge AI',
+        'AI工事・リフォーム見積管理システム',
+        'AI Real Estate Matcher',
+        'AI LINE Inquiry Assistant',
+        'Meta Ad Library Monitor',
+        'Handover Maker',
+        'MediChart Lite',
+        'MediBrief',
+      ])
+      // Every card is still in the opened list.
+      await expect(panel.locator('article')).toHaveCount(11)
+
+      // Same category again after closing the list: opens and lands again.
+      await toggle.scrollIntoViewIfNeeded()
+      await toggle.click()
+      await expect(toggle).toHaveAttribute('aria-expanded', 'false')
+      await expect.poll(async () => (await panel.boundingBox())?.height ?? 99).toBeLessThan(2)
+      await scrollToSummary(page)
+      await summaryLink(page, /^AI・業務自動化/).click()
+      await expect(toggle).toHaveAttribute('aria-expanded', 'true')
+      await expectGroupLanded(page, 'ai-works')
+
+      // Same category again while open, after scrolling away.
+      await scrollToSummary(page)
+      await summaryLink(page, /^AI・業務自動化/).click()
+      await expectGroupLanded(page, 'ai-works')
+
+      // Opening with the toggle afterwards does not replay an old jump.
+      await toggle.scrollIntoViewIfNeeded()
+      await toggle.click()
+      await expect(toggle).toHaveAttribute('aria-expanded', 'false')
+      await toggle.click()
+      await expect(toggle).toHaveAttribute('aria-expanded', 'true')
+      await expect.poll(async () => (await panel.boundingBox())?.height ?? 0).toBeGreaterThan(1000)
+      await expect(toggle).toBeInViewport()
+
+      // The summary row stays one row of three, with tappable cards and no overflow.
+      for (const width of [viewport.width, ...(viewport.name === 'mobile' ? [320] : [])]) {
+        await page.setViewportSize({ width, height: viewport.height })
+        const boxes = await page.locator('#works dl > div').evaluateAll((cards) =>
+          cards.map((card) => card.getBoundingClientRect().toJSON() as DOMRect),
+        )
+        expect(boxes).toHaveLength(3)
+        expect(new Set(boxes.map((box) => Math.round(box.top))).size).toBe(1)
+        for (const box of boxes) {
+          expect(box.height).toBeGreaterThanOrEqual(44)
+          expect(box.width).toBeGreaterThanOrEqual(44)
+        }
+        for (const label of [/^受託実績/, /^AI・業務自動化/, /^Web制作/]) {
+          const linkBox = (await summaryLink(page, label).boundingBox())!
+          expect(linkBox.height).toBeGreaterThanOrEqual(44)
+        }
+        expect(await page.evaluate(() => document.documentElement.scrollWidth <= document.documentElement.clientWidth)).toBe(true)
+        await page.locator('#works dl').screenshot({ path: `/tmp/aicmode-works-summary-${width}.png` })
+      }
+
+      expect(runtimeErrors).toEqual([])
+      expect(failedRequests).toEqual([])
+    })
+  }
+
+  test('the web card goes to the web gallery', async ({ page }) => {
+    await page.goto(`${BASE_URL}/`, { waitUntil: 'networkidle' })
+    await scrollToSummary(page)
+    await summaryLink(page, /^Web制作/).click()
+    await expect(page).toHaveURL(`${BASE_URL}/works#archive`)
+    await expect(page.locator('#archive article')).toHaveCount(21)
+    await expect(page.locator('#archive')).toBeInViewport()
+    // The list on the top page is left as it was.
+    await page.goBack()
+    await expect(page).toHaveURL(`${BASE_URL}/`)
+    await expect(toggleOf(page)).toHaveAttribute('aria-expanded', 'false')
+  })
+
+  test('a direct address to the AI group opens the list on it', async ({ page }) => {
+    await page.goto(`${BASE_URL}/#ai-works`, { waitUntil: 'networkidle' })
+    await expect(toggleOf(page)).toHaveAttribute('aria-expanded', 'true')
+    await expectGroupLanded(page, 'ai-works')
+  })
+
+  test('back and forward move between the groups', async ({ page }) => {
+    await page.goto(`${BASE_URL}/`, { waitUntil: 'networkidle' })
+    await scrollToSummary(page)
+    await summaryLink(page, /^受託実績/).click()
+    await expectGroupLanded(page, 'client-work')
+    await scrollToSummary(page)
+    await summaryLink(page, /^AI・業務自動化/).click()
+    await expectGroupLanded(page, 'ai-works')
+
+    await page.goBack()
+    await expect(page).toHaveURL(`${BASE_URL}/#client-work`)
+    await expectGroupLanded(page, 'client-work')
+    await page.goForward()
+    await expect(page).toHaveURL(`${BASE_URL}/#ai-works`)
+    await expectGroupLanded(page, 'ai-works')
+    await page.goBack()
+    await page.goBack()
+    await expect(page).toHaveURL(`${BASE_URL}/`)
+    await expect(toggleOf(page)).toHaveAttribute('aria-expanded', 'true')
+  })
+
+  test('keyboard: Tab reaches each card, Enter jumps, and focus moves to the group', async ({ page }) => {
+    await page.goto(`${BASE_URL}/`, { waitUntil: 'networkidle' })
+    const client = summaryLink(page, /^受託実績/)
+    const ai = summaryLink(page, /^AI・業務自動化/)
+    const web = summaryLink(page, /^Web制作/)
+    await client.focus()
+    await expect(client).toBeFocused()
+    await page.keyboard.press('Tab')
+    await expect(ai).toBeFocused()
+    await page.keyboard.press('Tab')
+    await expect(web).toBeFocused()
+    // The focused card shows the ring.
+    expect(await web.evaluate((element) => getComputedStyle(element).outlineStyle)).toBe('solid')
+
+    await ai.focus()
+    await page.keyboard.press('Enter')
+    await expect(toggleOf(page)).toHaveAttribute('aria-expanded', 'true')
+    await expectGroupLanded(page, 'ai-works')
+    await expect(page.locator('#ai-works')).toBeFocused()
+    // The next Tab continues inside the group, at its first card.
+    await page.keyboard.press('Tab')
+    expect(await page.evaluate(() => document.activeElement?.closest('#ai-works article') !== null)).toBe(true)
+  })
+
+  test('cards still jump with the fold animation off under reduced motion', async ({ page }) => {
+    await page.emulateMedia({ reducedMotion: 'reduce' })
+    await page.goto(`${BASE_URL}/`, { waitUntil: 'networkidle' })
+    await scrollToSummary(page)
+    await summaryLink(page, /^AI・業務自動化/).click()
+    await expect(toggleOf(page)).toHaveAttribute('aria-expanded', 'true')
+    await expectGroupLanded(page, 'ai-works')
+  })
+})

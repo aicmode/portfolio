@@ -33,6 +33,8 @@ type FeaturedWork = {
   detailPath?: string
   /** `YYYY-MM-DD` the piece was added. Sorts this section, newest first. */
   addedOn?: string
+  /** An illustration shown inside the card body (client work with no screenshot). */
+  figure?: { src: string; alt: string; width: number; height: number; caption: string }
 }
 
 /**
@@ -167,16 +169,29 @@ const webWorks: readonly FeaturedWork[] = [
   },
 ] as const
 
-const clientWork: FeaturedWork = {
-  id: 'spreadsheet-automation',
-  title: 'Googleスプレッドシート連携 業務自動化ツール',
-  label: '業務自動化 × Google Spreadsheet',
-  description: 'Googleスプレッドシートを活用した業務自動化ツールを設計・開発。要件整理から自動送信フローの構築、設計資料作成まで対応し、実際の業務で利用するツールとして納品しました。',
-  accent: '#d4af37',
-  projectType: 'Client Work',
-  status: 'delivered',
-  scope: ['要件整理', '業務フロー設計', 'Googleスプレッドシート連携', '自動送信フロー構築', '設計資料作成', '納品'],
-}
+/**
+ * CLIENT WORK — paid, delivered pieces. A new one is added to this list and
+ * the group, the summary count and the folded total all follow from it.
+ */
+const clientWorks: readonly FeaturedWork[] = [
+  {
+    id: 'spreadsheet-automation',
+    title: 'Googleスプレッドシート連携 業務自動化ツール',
+    label: '業務自動化 × Google Spreadsheet',
+    description: 'Googleスプレッドシートを活用した業務自動化ツールを設計・開発。要件整理から自動送信フローの構築、設計資料作成まで対応し、実際の業務で利用するツールとして納品しました。',
+    accent: '#d4af37',
+    projectType: 'Client Work',
+    status: 'delivered',
+    scope: ['要件整理', '業務フロー設計', 'Googleスプレッドシート連携', '自動送信フロー構築', '設計資料作成', '納品'],
+    figure: {
+      src: '/works/images/spreadsheet-automation-client-work.webp',
+      alt: 'Googleスプレッドシート連携業務自動化ツールのイメージ。表形式データから自動処理、送信完了へ進む架空UI',
+      width: 1536,
+      height: 864,
+      caption: 'CONCEPT IMAGE · 制作した仕組みを表現した架空のイメージです。',
+    },
+  },
+]
 
 /** One featured card. Identical treatment in every group: the hierarchy is
     carried by the headings and the order, never by the card design. Every
@@ -222,20 +237,20 @@ function WorkCard({ work, delay }: { work: FeaturedWork; delay: number }) {
           <p className="mt-4 text-[10px] leading-5 tracking-[0.08em] text-white/38">
             {work.projectType === 'Client Work' ? 'Client Work ・ 有償案件' : PROJECT_TYPE_LABEL[work.projectType]} ・ {work.status === 'delivered' ? '納品済み' : STATUS_LABEL[work.status]}
           </p>
-          {isClientWork ? (
+          {work.figure ? (
             <figure className="mt-6 min-w-0">
               <div className="overflow-hidden border border-white/[0.08] bg-[#080808]">
                 <Image
-                  src="/works/images/spreadsheet-automation-client-work.webp"
-                  alt="Googleスプレッドシート連携業務自動化ツールのイメージ。表形式データから自動処理、送信完了へ進む架空UI"
-                  width={1536}
-                  height={864}
+                  src={work.figure.src}
+                  alt={work.figure.alt}
+                  width={work.figure.width}
+                  height={work.figure.height}
                   sizes="(min-width: 1376px) 1232px, (min-width: 768px) calc(100vw - 144px), calc(100vw - 88px)"
                   className="h-auto w-full"
                 />
               </div>
               <figcaption className="mt-3 text-[10px] leading-5 tracking-[0.08em] text-white/40">
-                CONCEPT IMAGE · 制作した仕組みを表現した架空のイメージです。
+                {work.figure.caption}
               </figcaption>
             </figure>
           ) : null}
@@ -328,13 +343,36 @@ function GroupHeading({
 }
 
 /** How many cards the folded list holds, from the same arrays it renders. */
-const totalWorkCount = 1 + aiWorks.length + webWorks.length
+const totalWorkCount = clientWorks.length + aiWorks.length + webWorks.length
 
-/** What the folded section says before it is opened: what exists, and how much. */
+/** Anchors of the groups inside the folded list. */
+const CLIENT_WORK_ID = 'client-work'
+const AI_WORKS_ID = 'ai-works'
+
+/**
+ * What the folded section says before it is opened: what exists, and how much
+ * — and each one is a way in. The in-page anchors are opened and scrolled to by
+ * `WorksDisclosure`; the web count goes to the full gallery at `/works`.
+ */
 const workSummary = [
-  { label: '受託実績', count: 1 },
-  { label: 'AI・業務自動化', count: aiWorks.length },
-  { label: 'Web制作', count: webProjectCount },
+  {
+    label: '受託実績',
+    count: clientWorks.length,
+    href: `#${CLIENT_WORK_ID}`,
+    destination: '作品一覧の受託実績へ移動',
+  },
+  {
+    label: 'AI・業務自動化',
+    count: aiWorks.length,
+    href: `#${AI_WORKS_ID}`,
+    destination: '作品一覧のAI・業務自動化へ移動',
+  },
+  {
+    label: 'Web制作',
+    count: webProjectCount,
+    href: '/works#archive',
+    destination: 'Web制作実績ページを開く',
+  },
 ] as const
 
 /**
@@ -367,15 +405,44 @@ export default function FeaturedWorks() {
 
         <AnimateIn delay={100}>
           <dl className="mt-6 grid grid-cols-3 gap-2 sm:gap-3">
-            {workSummary.map((item) => (
-              <div key={item.label} className="flex flex-col-reverse justify-end gap-1 border border-white/[0.08] bg-white/[0.018] px-3 py-3.5 sm:px-5 sm:py-4">
-                <dt className="break-keep text-[11px] leading-5 tracking-[0.06em] text-white/55 sm:text-[12px]">{item.label}</dt>
-                <dd className="text-[1.5rem] font-bold leading-none tracking-[-0.02em] text-white sm:text-[1.9rem]">
-                  {item.count}
-                  <span className="ml-1 text-[12px] font-medium tracking-normal text-white/50">件</span>
-                </dd>
-              </div>
-            ))}
+            {workSummary.map((item) => {
+              const isPage = item.href.startsWith('/')
+              /* One link per card, stretched over the whole card so all of it
+                 is the tap target, while the dt/dd pairing stays valid. */
+              const linkClassName = 'absolute inset-0'
+              const linkLabel = (
+                <span className="sr-only">
+                  {item.label} {item.count}件 — {item.destination}
+                </span>
+              )
+              return (
+                <div
+                  key={item.label}
+                  className="group/summary relative flex flex-col-reverse justify-end gap-1 border border-white/[0.08] bg-white/[0.018] px-3 py-3.5 transition-colors duration-300 hover:border-[rgba(212,175,55,0.38)] hover:bg-[rgba(212,175,55,0.045)] has-[a:focus-visible]:border-[rgba(212,175,55,0.38)] motion-reduce:transition-none sm:px-5 sm:py-4"
+                >
+                  <dt className="break-keep text-[11px] leading-5 tracking-[0.06em] text-white/55 transition-colors duration-300 group-hover/summary:text-white/75 motion-reduce:transition-none sm:text-[12px]">{item.label}</dt>
+                  <dd className="text-[1.5rem] font-bold leading-none tracking-[-0.02em] text-white sm:text-[1.9rem]">
+                    {item.count}
+                    <span className="ml-1 text-[12px] font-medium tracking-normal text-white/50">件</span>
+                    {isPage ? (
+                      <Link href={item.href} className={linkClassName}>{linkLabel}</Link>
+                    ) : (
+                      <a href={item.href} className={linkClassName}>{linkLabel}</a>
+                    )}
+                  </dd>
+                  {/* Down for a group further down this page, across for another page. */}
+                  <svg
+                    className={`pointer-events-none absolute right-2 top-2 h-3 w-3 text-white/25 transition-colors duration-300 group-hover/summary:text-[rgba(232,204,113,0.9)] motion-reduce:transition-none sm:right-3 sm:top-3 ${isPage ? '-rotate-90' : ''}`}
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                    aria-hidden="true"
+                  >
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19 9l-7 7-7-7" />
+                  </svg>
+                </div>
+              )
+            })}
           </dl>
         </AnimateIn>
 
@@ -393,19 +460,21 @@ export default function FeaturedWorks() {
               }
             >
               {/* CLIENT WORK. The one paid, delivered piece, read first. */}
-              <div id="client-work" className="scroll-mt-24 pt-10">
+              <div id={CLIENT_WORK_ID} tabIndex={-1} className="scroll-mt-24 pt-10 outline-none">
                 <GroupHeading
                   rank="CLIENT WORK"
                   title="受託実績"
                   description="実際にご依頼いただき、設計・開発・納品まで対応した案件です。"
                 />
-                <div className="mt-7">
-                  <WorkCard work={clientWork} delay={0} />
+                <div className="mt-7 grid grid-cols-1 gap-4">
+                  {clientWorks.map((work, index) => (
+                    <WorkCard key={work.id} work={work} delay={index * 80} />
+                  ))}
                 </div>
               </div>
 
               {/* MAIN. The larger group, because that is what this portfolio is for. */}
-              <div className="mt-14 border-t border-white/[0.07] pt-10 md:mt-16 md:pt-12">
+              <div id={AI_WORKS_ID} tabIndex={-1} className="mt-14 scroll-mt-24 border-t border-white/[0.07] pt-10 outline-none md:mt-16 md:pt-12">
                 <GroupHeading
                   rank="MAIN"
                   title="AI・業務自動化"

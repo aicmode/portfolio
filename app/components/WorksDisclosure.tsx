@@ -26,6 +26,12 @@ export default function WorksDisclosure({
   children: ReactNode
 }) {
   const [open, setOpen] = useState(false)
+  /**
+   * A request to bring one element inside the list into view. `seq` makes a
+   * repeat request for the same element a new value, so it runs again.
+   */
+  const [reveal, setReveal] = useState<{ id: string; seq: number } | null>(null)
+
   const toggleRef = useRef<HTMLButtonElement>(null)
   const panelRef = useRef<HTMLDivElement>(null)
 
@@ -36,27 +42,105 @@ export default function WorksDisclosure({
    */
   const closeFromBottom = useCallback(() => {
     setOpen(false)
+    setReveal(null)
     const toggle = toggleRef.current
     if (!toggle) return
     toggle.focus({ preventScroll: true })
     toggle.scrollIntoView({ block: 'center' })
   }, [])
 
-  // An address that points inside the list (an old `/#client-work` link, say)
-  // opens it, so the anchor still lands on something visible.
+  /** The element with this id, if it is inside the list. */
+  const panelTarget = useCallback((id: string) => {
+    const target = document.getElementById(id)
+    return target && panelRef.current?.contains(target) ? target : null
+  }, [])
+
+  const requestReveal = useCallback((id: string) => {
+    setOpen(true)
+    setReveal((previous) => ({ id, seq: (previous?.seq ?? 0) + 1 }))
+  }, [])
+
+  // An address that points inside the list (`/#client-work`, `/#ai-works`)
+  // opens it, so the anchor still lands on something visible — on first load,
+  // and on back / forward between such addresses.
   useEffect(() => {
     const openForHash = () => {
       const hash = window.location.hash
       if (hash.length < 2) return
-      const target = document.getElementById(decodeURIComponent(hash.slice(1)))
-      if (!target || !panelRef.current?.contains(target)) return
-      setOpen(true)
-      window.setTimeout(() => target.scrollIntoView({ block: 'start' }), 80)
+      const id = decodeURIComponent(hash.slice(1))
+      if (panelTarget(id)) requestReveal(id)
     }
     openForHash()
     window.addEventListener('hashchange', openForHash)
     return () => window.removeEventListener('hashchange', openForHash)
-  }, [])
+  }, [panelTarget, requestReveal])
+
+  // In-page links to a group inside the list (the summary cards above it).
+  // Handled here rather than left to fragment navigation, because clicking a
+  // link whose hash is already in the address fires no `hashchange` — and the
+  // list may have been closed since. Modified clicks keep their default.
+  useEffect(() => {
+    const onClick = (event: MouseEvent) => {
+      if (event.defaultPrevented || event.button !== 0) return
+      if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return
+      const link = (event.target as Element | null)?.closest?.('a[href^="#"]')
+      const href = link?.getAttribute('href')
+      if (!href || href.length < 2) return
+      const id = decodeURIComponent(href.slice(1))
+      if (!panelTarget(id)) return
+      event.preventDefault()
+      if (window.location.hash !== href) history.pushState(null, '', href)
+      requestReveal(id)
+    }
+    document.addEventListener('click', onClick)
+    return () => document.removeEventListener('click', onClick)
+  }, [panelTarget, requestReveal])
+
+  /**
+   * Scroll once the list has its full height. While it is still expanding, the
+   * page below the toggle is shorter than it will be and a scroll aimed deep
+   * into the list would stop short, so this waits for the height transition
+   * itself to finish — no guessed delay. Under reduced motion (or when already
+   * open) there is no transition and it scrolls at once.
+   *
+   * The destination is the target's layout position, not its on-screen one:
+   * the fade-in wrapper around this list may still be sliding up (a transform)
+   * when the scroll starts, and aiming at where it is mid-slide lands short.
+   * `scrollTo` with no `behavior` follows the CSS `scroll-behavior` (and its
+   * reduced-motion override), and the target's `scroll-margin-top` keeps its
+   * heading clear of the fixed nav. Focus moves to the group, as native
+   * fragment navigation would, so the next Tab continues from there.
+   */
+  useEffect(() => {
+    if (!reveal || !open) return
+    const panel = panelRef.current
+    const target = panelTarget(reveal.id)
+    if (!panel || !target) return
+    let cancelled = false
+    // `getAnimations()` flushes style, so the transition just triggered by
+    // opening is already listed here.
+    const expanding = panel
+      .getAnimations()
+      .filter((animation) => (animation as CSSTransition).transitionProperty === 'grid-template-rows')
+    Promise.all(expanding.map((animation) => animation.finished)).then(
+      () => {
+        if (cancelled) return
+        target.focus({ preventScroll: true })
+        // offsetTop ignores transforms, so this is where the target rests.
+        let top = 0
+        for (let node: HTMLElement | null = target; node; node = node.offsetParent as HTMLElement | null) {
+          top += node.offsetTop
+        }
+        const margin = parseFloat(getComputedStyle(target).scrollMarginTop) || 0
+        window.scrollTo({ top: Math.max(0, top - margin) })
+      },
+      // Cancelled (closed again mid-way): nothing to scroll to.
+      () => {},
+    )
+    return () => {
+      cancelled = true
+    }
+  }, [reveal, open, panelTarget])
 
   return (
     <div>
@@ -64,7 +148,11 @@ export default function WorksDisclosure({
         <button
           ref={toggleRef}
           type="button"
-          onClick={() => setOpen((value) => !value)}
+          onClick={() => {
+            // The toggle never scrolls: drop any earlier card's pending request.
+            setReveal(null)
+            setOpen((value) => !value)
+          }}
           aria-expanded={open}
           aria-controls={PANEL_ID}
           className="group inline-flex min-h-12 w-full items-center justify-center gap-3 border border-[rgba(212,175,55,0.4)] bg-[rgba(212,175,55,0.06)] px-6 py-3 text-[13px] font-semibold tracking-[0.08em] text-[rgba(240,215,140,0.95)] transition hover:border-[rgba(212,175,55,0.7)] hover:bg-[rgba(212,175,55,0.1)] hover:text-white sm:w-auto"

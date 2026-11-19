@@ -25,7 +25,7 @@ export default function DetailPageHeader({
             href="/#contact"
             className="inline-flex min-h-11 items-center justify-center border border-[rgba(212,175,55,0.34)] px-4 text-[11px] font-semibold tracking-[0.08em] text-[rgba(232,204,113,0.9)] transition hover:border-[rgba(212,175,55,0.6)] hover:text-white"
           >
-            LINEで相談する
+            お問い合わせ
           </Link>
         </nav>
         <p className="mb-5 text-[12px] tracking-[0.24em] text-zinc-400">{eyebrow}</p>

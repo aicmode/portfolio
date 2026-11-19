@@ -3,28 +3,22 @@ import type { CSSProperties, ReactNode } from 'react'
 import { motion } from 'framer-motion'
 import AnimateIn from './AnimateIn'
 
-function GitHubIcon() {
+function ThreadsIcon() {
   return (
     <svg viewBox="0 0 24 24" fill="currentColor" className="w-5 h-5 flex-shrink-0" aria-hidden="true">
-      <path d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z" />
+      <path d="M12.186 24h-.007c-3.581-.024-6.334-1.205-8.184-3.509C2.35 18.44 1.5 15.586 1.472 12.01v-.017c.03-3.579.879-6.43 2.525-8.482C5.845 1.205 8.6.024 12.18 0h.014c2.746.02 5.043.725 6.826 2.098 1.677 1.29 2.858 3.13 3.509 5.467l-2.04.569c-1.104-3.96-3.898-5.984-8.304-6.015-2.91.022-5.11.936-6.54 2.717C4.307 6.504 3.616 8.914 3.589 12c.027 3.086.718 5.496 2.057 7.164 1.43 1.783 3.631 2.698 6.54 2.717 2.623-.02 4.358-.631 5.8-2.045 1.647-1.613 1.618-3.593 1.09-4.798-.31-.71-.873-1.3-1.634-1.75-.192 1.352-.622 2.446-1.284 3.272-.886 1.102-2.14 1.704-3.73 1.79-1.202.065-2.361-.218-3.259-.801-1.063-.689-1.685-1.74-1.752-2.964-.065-1.19.408-2.285 1.33-3.082.88-.76 2.119-1.207 3.583-1.291a13.853 13.853 0 0 1 3.02.142c-.126-.742-.375-1.332-.75-1.757-.513-.586-1.308-.883-2.359-.89h-.029c-.844 0-1.992.232-2.721 1.32L7.734 7.847c.98-1.454 2.568-2.256 4.478-2.256h.044c3.194.02 5.097 1.975 5.287 5.388.108.046.216.094.321.142 1.49.7 2.58 1.761 3.154 3.07.797 1.82.871 4.79-1.548 7.158-1.85 1.81-4.094 2.628-7.277 2.65Zm1.003-11.69c-.242 0-.487.007-.739.021-1.836.103-2.98.946-2.916 2.143.067 1.256 1.452 1.839 2.784 1.767 1.224-.065 2.818-.543 3.086-3.71a10.5 10.5 0 0 0-2.215-.221z" />
     </svg>
   )
 }
 
-function LineIcon() {
+function XIcon() {
   return (
     <svg viewBox="0 0 24 24" fill="currentColor" className="w-5 h-5 flex-shrink-0" aria-hidden="true">
-      <path d="M19.365 9.863c.349 0 .63.285.63.631 0 .345-.281.63-.63.63H17.61v1.125h1.755c.349 0 .63.283.63.63 0 .344-.281.629-.63.629h-2.386c-.345 0-.627-.285-.627-.629V8.108c0-.345.282-.63.63-.63h2.386c.346 0 .627.285.627.63 0 .349-.281.63-.63.63H17.61v1.125h1.755zm-3.855 3.016c0 .27-.174.51-.432.596-.064.021-.133.031-.199.031-.211 0-.391-.09-.51-.25l-2.443-3.317v2.94c0 .344-.279.629-.631.629-.346 0-.626-.285-.626-.629V8.108c0-.27.173-.51.43-.595.06-.023.136-.033.194-.033.195 0 .375.104.495.254l2.462 3.33V8.108c0-.345.282-.63.63-.63.345 0 .63.285.63.63v4.771zm-5.741 0c0 .344-.282.629-.631.629-.345 0-.627-.285-.627-.629V8.108c0-.345.282-.63.63-.63.346 0 .628.285.628.63v4.771zm-2.466.629H4.917c-.345 0-.63-.285-.63-.629V8.108c0-.345.285-.63.63-.63.348 0 .63.285.63.63v4.141h1.756c.348 0 .629.283.629.63 0 .344-.282.629-.629.629M24 10.314C24 4.943 18.615.572 12 .572S0 4.943 0 10.314c0 4.811 4.27 8.842 10.035 9.608.391.082.923.258 1.058.59.12.301.079.766.038 1.08l-.164 1.02c-.045.301-.24 1.186 1.049.645 1.291-.539 6.916-4.078 9.436-6.975C23.176 14.393 24 12.458 24 10.314" />
+      <path d="M18.901 1.153h3.68l-8.04 9.19L24 22.846h-7.406l-5.8-7.584-6.64 7.584H.47l8.6-9.835L0 1.154h7.594l5.243 6.932 6.064-6.933Zm-1.29 19.49h2.039L6.487 3.24H4.3l13.31 17.403Z" />
     </svg>
   )
 }
 
-/**
- * One reachable contact route. Rendered by `ContactCard`, which is the single
- * place the card treatment is defined — a new channel is added to
- * `contactChannels` below and inherits the exact same size, spacing and hover
- * motion as every other card.
- */
 type ContactChannel = {
   href: string
   icon: ReactNode
@@ -41,42 +35,36 @@ type ContactChannel = {
   ariaLabel: string
 }
 
-/**
- * The sales LINE official account (@862povmk). Placed first because it is the
- * lowest-friction route: no GitHub account, and nothing written into a public
- * issue thread.
- */
-const lineOfficial: ContactChannel = {
-  href: 'https://line.me/R/ti/p/@862povmk',
-  icon: <LineIcon />,
-  label: 'LINE',
-  title: 'LINEでお問い合わせ',
+/** Main contact route. */
+const threads: ContactChannel = {
+  href: 'https://www.threads.com/@kaito.aic?igshid=NTc4MTIwNjQ2YQ==',
+  icon: <ThreadsIcon />,
+  label: 'Threads',
+  title: 'Threadsでお問い合わせ',
   desc: 'ご相談、お見積もり、「こんなことできますか？」の確認まで、お気軽にどうぞ。',
-  accent: '#06C755',
-  glow: 'rgba(6,199,85,0.14)',
-  border: 'rgba(6,199,85,0.42)',
-  ariaLabel: 'LINE公式アカウントの友だち追加を新しいタブで開く',
-}
-
-const github: ContactChannel = {
-  href: 'https://github.com/aicmode',
-  icon: <GitHubIcon />,
-  label: 'GitHub',
-  title: 'GitHubで中身を見る',
-  desc: 'これまでに作ったものの中身を公開しています。',
   accent: '#ffffff',
   glow: 'rgba(255,255,255,0.07)',
   border: 'rgba(255,255,255,0.12)',
-  ariaLabel: 'GitHubプロフィールを新しいタブで開く',
+  ariaLabel: 'Threads（@kaito.aic）を新しいタブで開く',
 }
 
-/** Display order. LINE first — see the note on `lineOfficial`. */
-const contactChannels: ContactChannel[] = [lineOfficial, github]
+/** Secondary contact route. */
+const x: ContactChannel = {
+  href: 'https://x.com/kaito_ns_ai?s=11',
+  icon: <XIcon />,
+  label: 'X',
+  title: 'Xでお問い合わせ',
+  desc: 'Xからのご相談も受け付けています。普段お使いの方はこちらからどうぞ。',
+  accent: '#ffffff',
+  glow: 'rgba(255,255,255,0.07)',
+  border: 'rgba(255,255,255,0.12)',
+  ariaLabel: 'X（@kaito_ns_ai）を新しいタブで開く',
+}
+
+/** Display order: Threads (main) first, then X (secondary). */
+const contactChannels: ContactChannel[] = [threads, x]
 
 const disciplines = ['作業の自動化', 'AIを使ったツール', '仕事用のWebアプリ', '医療・介護の業務改善']
-
-const GITHUB_ISSUE_URL =
-  'https://github.com/aicmode/portfolio/issues/new?title=%E3%80%90%E3%81%94%E7%9B%B8%E8%AB%87%E3%80%91'
 
 /**
  * What to include in a first message. Removes the "I don't know what to write"
@@ -341,7 +329,7 @@ export default function Contact() {
 
             <div className="mt-9 flex flex-col gap-4 sm:flex-row sm:items-center">
               <motion.a
-                href={GITHUB_ISSUE_URL}
+                href={threads.href}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-flex items-center justify-center border px-7 py-4 text-[13px] font-semibold tracking-[0.08em] text-[#080808]"
@@ -356,36 +344,18 @@ export default function Contact() {
                   transition: { duration: 0.35, ease: [0.22, 1, 0.36, 1] },
                 }}
               >
-                GitHubで相談内容を送る
-                <span className="sr-only">（GitHubを新しいタブで開きます）</span>
+                Threadsで相談する
+                <span className="sr-only">（Threadsを新しいタブで開きます）</span>
               </motion.a>
               <a
-                href={github.href}
+                href={x.href}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-flex items-center justify-center border border-white/14 px-7 py-4 text-[13px] font-semibold tracking-[0.08em] text-white/70 transition duration-500 hover:border-white/32 hover:text-white"
               >
-                GitHubプロフィールを見る
-                <span className="sr-only">（GitHubを新しいタブで開きます）</span>
+                Xで相談する
+                <span className="sr-only">（Xを新しいタブで開きます）</span>
               </a>
-            </div>
-
-            {/*
-              GitHub and the LINE official account are the only two contact
-              routes that exist. No email address or social handle is invented
-              here — and because a GitHub Issue is public, that has to be said
-              out loud before someone pastes business details into one.
-            */}
-            <div className="mt-6 max-w-3xl border-l border-[rgba(212,175,55,0.32)] pl-4 text-[12.5px] leading-6 text-white/58">
-              <p className="font-semibold text-white/76">GitHubをお持ちでない方へ</p>
-              <p className="mt-2">
-                下のLINE公式アカウントからそのままご相談いただけます。やり取りは非公開のため、
-                詳しい内容もこちらでお伺いします。
-              </p>
-              <p className="mt-2">
-                GitHubに書いた内容は誰でも見られる状態になります。会社名、患者さんの情報、
-                個人情報、社内資料などは書かないようご注意ください。
-              </p>
             </div>
           </div>
         </AnimateIn>
@@ -401,7 +371,7 @@ export default function Contact() {
 
         {/* ── Contact cards ── */}
         <AnimateIn delay={420}>
-          <div className="mx-auto flex w-full max-w-lg flex-col gap-4">
+          <div className="mx-auto grid w-full max-w-lg auto-rows-fr gap-4">
             {contactChannels.map((channel) => (
               <ContactCard key={channel.label} {...channel} />
             ))}

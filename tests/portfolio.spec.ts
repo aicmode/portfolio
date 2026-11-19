@@ -3,6 +3,12 @@ import { expect, test, type Page } from 'playwright/test'
 /** Defaults to the usual dev port; override when a dev server is already on it. */
 const BASE_URL = process.env.PLAYWRIGHT_BASE_URL ?? 'http://localhost:3000'
 
+/** The two contact routes: Threads (main) and X (secondary). */
+const THREADS_URL = 'https://www.threads.com/@kaito.aic?igshid=NTc4MTIwNjQ2YQ=='
+const THREADS_LABEL = 'Threads（@kaito.aic）を新しいタブで開く'
+const X_URL = 'https://x.com/kaito_ns_ai?s=11'
+const X_LABEL = 'X（@kaito_ns_ai）を新しいタブで開く'
+
 function collectRuntimeErrors(page: Page) {
   const errors: string[] = []
 
@@ -281,14 +287,22 @@ test.describe('short sales landing page', () => {
     await expect(profile.getByRole('link', { name: '自己紹介を詳しく見る' })).toHaveAttribute('href', '/about')
 
     await expect(page.locator('#contact')).toContainText('まずは困っていることを教えてください。')
-    const line = page.getByRole('link', { name: /LINEで相談する/ })
-    await expect(line).toHaveAttribute('href', 'https://line.me/R/ti/p/@862povmk')
-    await expect(line).toHaveAttribute('target', '_blank')
-    await expect(line).toHaveAttribute('rel', /noopener/)
-    const x = page.locator('#contact').getByRole('link', { name: 'X（@kaito_ns_ai）を新しいタブで開く' })
-    await expect(x).toHaveAttribute('href', 'https://x.com/kaito_ns_ai')
+    await expect(page.locator('a[href*="line.me"], a[href*="lin.ee"]')).toHaveCount(0)
+    await expect(page.locator('#contact')).not.toContainText('LINEで相談する')
+    const threads = page.locator('#contact').getByRole('link', { name: THREADS_LABEL })
+    await expect(threads).toHaveAttribute('href', THREADS_URL)
+    await expect(threads).toHaveAttribute('target', '_blank')
+    await expect(threads).toHaveAttribute('rel', 'noopener noreferrer')
+    await expect(threads).toBeVisible()
+    const x = page.locator('#contact').getByRole('link', { name: X_LABEL })
+    await expect(x).toHaveAttribute('href', X_URL)
     await expect(x).toHaveAttribute('target', '_blank')
     await expect(x).toHaveAttribute('rel', 'noopener noreferrer')
+    await expect(x).toBeVisible()
+    // Threads (main) comes before X (secondary), and they are the only external contact routes.
+    expect(await page.locator('#contact a[target="_blank"]').evaluateAll((links) =>
+      links.map((link) => link.getAttribute('href')),
+    )).toEqual([THREADS_URL, X_URL])
     await expect(page.locator('#contact a[href*="github.com"]')).toHaveCount(0)
 
     await expect(page.getByText('お困りごとから探す')).toHaveCount(0)
@@ -348,6 +362,13 @@ test.describe('short sales landing page', () => {
 
 test.describe('detail pages retain the removed information', () => {
   test('services retains problem and deliverable details', async ({ page }) => {
+    await page.goto(`${BASE_URL}/services`)
+    const contactLink = page.getByRole('navigation', { name: '詳細ページナビゲーション' }).getByRole('link', { name: 'お問い合わせ' })
+    await expect(contactLink).toHaveAttribute('href', '/#contact')
+    await expect(page.getByText('LINEで相談する')).toHaveCount(0)
+    await contactLink.click()
+    await expect(page).toHaveURL(`${BASE_URL}/#contact`)
+    await expect(page.locator('#contact')).toBeInViewport()
     await page.goto(`${BASE_URL}/services`)
     await expect(page.getByText('お困りごとから探す', { exact: true })).toBeVisible()
     await expect(page.getByText('お渡しできるもの', { exact: true })).toBeVisible()
@@ -690,9 +711,96 @@ test.describe('detail pages retain the removed information', () => {
     await expect(page.locator('#process h3')).toHaveCount(5)
     await expect(page.getByText('こんなご相談が多いです')).toBeVisible()
     await expect(page.getByText('お伝えいただきたいこと')).toBeVisible()
-    await expect(page.getByRole('link', { name: /LINE公式アカウント/ })).toHaveAttribute(
-      'href',
-      'https://line.me/R/ti/p/@862povmk',
-    )
+    const contact = page.locator('main#main section#contact')
+    // Each route appears twice: once as a "相談する" button, once as a contact card.
+    for (const href of [THREADS_URL, X_URL]) {
+      const links = contact.locator(`a[href="${href}"]`)
+      await expect(links).toHaveCount(2)
+      for (const link of await links.all()) {
+        await expect(link).toHaveAttribute('target', '_blank')
+        await expect(link).toHaveAttribute('rel', 'noopener noreferrer')
+        await expect(link).toBeVisible()
+      }
+    }
+    // Threads is the main (gold) button, X the secondary one — in that order.
+    const threadsButton = contact.getByRole('link', { name: /^Threadsで相談する/ })
+    const xButton = contact.getByRole('link', { name: /^Xで相談する/ })
+    await expect(threadsButton).toHaveAttribute('href', THREADS_URL)
+    await expect(xButton).toHaveAttribute('href', X_URL)
+    const [threadsButtonBox, xButtonBox] = [await threadsButton.boundingBox(), await xButton.boundingBox()]
+    expect(threadsButtonBox!.x + threadsButtonBox!.y).toBeLessThan(xButtonBox!.x + xButtonBox!.y)
+    // Contact cards: Threads first, then X.
+    const threadsCard = contact.getByRole('link', { name: THREADS_LABEL })
+    const xCard = contact.getByRole('link', { name: X_LABEL })
+    await expect(threadsCard).toHaveCount(1)
+    await expect(xCard).toHaveCount(1)
+    await expect(threadsCard).toContainText('Threadsでお問い合わせ')
+    await expect(xCard).toContainText('Xでお問い合わせ')
+    const [threadsCardBox, xCardBox] = [await threadsCard.boundingBox(), await xCard.boundingBox()]
+    expect(threadsCardBox!.y).toBeLessThan(xCardBox!.y)
+    expect(threadsCardBox!.width).toBe(xCardBox!.width)
+    await expect(contact.locator('a[href*="line.me"], a[href*="lin.ee"], a[href*="github.com"]')).toHaveCount(0)
+    await expect(contact).not.toContainText(/LINEでお問い合わせ|LINEで相談する|GitHubで相談内容を送る|GitHubプロフィールを見る/)
   })
+
+  for (const viewport of [
+    { name: 'desktop', width: 1440, height: 900 },
+    { name: 'mobile', width: 375, height: 812 },
+  ]) {
+    test(`Threads and X contact routes render consistently at ${viewport.name} width`, async ({ page }) => {
+      const runtimeErrors = collectRuntimeErrors(page)
+      const failedRequests = collectFailedRequests(page)
+      const httpErrors: string[] = []
+      page.on('response', (response) => {
+        if (response.status() >= 400) httpErrors.push(`${response.status()} ${response.url()}`)
+      })
+      const inFlight = new Set<object>()
+      page.on('request', (request) => inFlight.add(request))
+      page.on('requestfinished', (request) => inFlight.delete(request))
+      page.on('requestfailed', (request) => inFlight.delete(request))
+      await page.setViewportSize({ width: viewport.width, height: viewport.height })
+
+      for (const path of ['/', '/contact']) {
+        await page.goto(`${BASE_URL}${path}`, { waitUntil: 'networkidle' })
+        const contact = page.locator('section#contact')
+        const threads = contact.getByRole('link', { name: THREADS_LABEL })
+        const x = contact.getByRole('link', { name: X_LABEL })
+        await threads.scrollIntoViewIfNeeded()
+        await expect(threads).toBeVisible()
+        await expect(x).toBeVisible()
+
+        const threadsBox = (await threads.boundingBox())!
+        const xBox = (await x.boundingBox())!
+        // Same footprint, comfortable tap target, both inside the viewport.
+        expect(threadsBox.width).toBe(xBox.width)
+        expect(threadsBox.height).toBe(xBox.height)
+        expect(threadsBox.height).toBeGreaterThanOrEqual(44)
+        expect(threadsBox.width).toBeGreaterThanOrEqual(44)
+        for (const box of [threadsBox, xBox]) {
+          expect(box.x).toBeGreaterThanOrEqual(0)
+          expect(box.x + box.width).toBeLessThanOrEqual(viewport.width)
+        }
+        // Threads (main) first: left of X on the top page, above X on /contact.
+        if (path === '/') {
+          expect(threadsBox.x + threadsBox.width).toBeLessThanOrEqual(xBox.x)
+          expect(threadsBox.y).toBe(xBox.y)
+        } else {
+          expect(threadsBox.y + threadsBox.height).toBeLessThanOrEqual(xBox.y)
+        }
+
+        const dimensions = await page.evaluate(() => ({
+          scrollWidth: document.documentElement.scrollWidth,
+          clientWidth: document.documentElement.clientWidth,
+        }))
+        expect(dimensions.scrollWidth).toBe(dimensions.clientWidth)
+        // Scrolling triggers lazy images; let them finish so leaving the page doesn't abort them.
+        await page.waitForTimeout(1200)
+        await expect.poll(() => inFlight.size).toBe(0)
+      }
+
+      expect(runtimeErrors).toEqual([])
+      expect(failedRequests).toEqual([])
+      expect(httpErrors).toEqual([])
+    })
+  }
 })
